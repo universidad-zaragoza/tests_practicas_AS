@@ -7,7 +7,6 @@ import re
 from stat import S_ISREG, ST_MODE, S_IXUSR
 import string
 import sys
-from tempfile import mkstemp, mkdtemp
 import unittest
 
 class TestPractica2_4(unittest.TestCase):

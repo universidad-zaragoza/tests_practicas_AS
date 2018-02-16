@@ -7,7 +7,6 @@ import re
 from shutil import rmtree
 from stat import S_IXUSR
 import string
-import subprocess
 import sys
 import unittest
 
