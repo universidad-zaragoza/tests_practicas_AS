@@ -71,6 +71,19 @@ class TestPractica3(unittest.TestCase):
             self.assertTrue(False)
         self.assertTrue(True)
 
+    def test_create_extra_backup(self):
+        # risky test, it deletes a directory
+        backup_dir='/extra/backup'
+
+        if os.path.isdir(backup_dir):
+            check_call(["sudo", "rm", "-rf", '{}'.format(backup_dir)])
+
+        self.child = pexpect.spawn('sudo', ['--', '/bin/bash', './practica_3.sh', '-s', '/dev/null'])
+        self.child.expect(pexpect.EOF)
+        self.child.close()
+        self.assertEqual(self.child.exitstatus, 0)
+        self.assertTrue(os.path.isdir(backup_dir))
+
     def test_correct_user_list(self):
         self.child = pexpect.spawn('sudo -- /bin/bash ./practica_3.sh -a ./correct_user_list.txt')
 
