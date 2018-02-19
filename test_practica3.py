@@ -77,12 +77,17 @@ class TestPractica3(unittest.TestCase):
 
         if os.path.isdir(backup_dir):
             check_call(["sudo", "rm", "-rf", '{}'.format(backup_dir)])
-
+        
         self.child = pexpect.spawn('sudo', ['--', '/bin/bash', './practica_3.sh', '-s', '/dev/null'])
-        self.child.expect(pexpect.EOF)
+        try:
+            self.child.expect(pexpect.EOF)
+        except:
+            self.assertTrue(False)
+
         self.child.close()
         self.assertEqual(self.child.exitstatus, 0)
         self.assertTrue(os.path.isdir(backup_dir))
+            
 
     def test_correct_user_list(self):
         self.child = pexpect.spawn('sudo -- /bin/bash ./practica_3.sh -a ./correct_user_list.txt')
@@ -107,10 +112,9 @@ class TestPractica3(unittest.TestCase):
 
         self.assertTrue(True)
 
-
-    def test_existing_user(self):
-
-        # create user
+    def get_new_user(self):
+        """ This helper function returns a valid name for a new user
+        """
         users=set()
         with open('/etc/passwd', 'r') as f:
             for line in f:
@@ -119,13 +123,81 @@ class TestPractica3(unittest.TestCase):
         random_user_name=''.join(random.choice(string.ascii_letters+string.digits) for _ in range(8))
         while random_user_name in users:
             random_user_name=''.join(random.choice(string.ascii_letters+string.digits) for _ in range(8))
+        return random_user_name
 
+    def create_fake_user_file(self, user_name, fake_home=False):
+        """ this function returns the name of a temporary file with a new user named user_name.
+            The file has been closed and it is the caller responsability to remove the generated file.
+        """
+        
         tmp_handle, tmp_name = mkstemp()
 
-        check_call(["sudo", "useradd", "{}".format(random_user_name)])
+        command_list = [ "sudo", "useradd", "-m" ]
 
-        os.write(tmp_handle, '{}, {}, {}\n'.format(random_user_name, 'pwd', 'name'))
+        if fake_home:
+            command_list += ["-d", "/tmp/{}".format(user_name)]
+
+        command_list += ["{}".format(user_name)]
+        check_call(command_list)
+
+        os.write(tmp_handle, '{}, {}, {}\n'.format(user_name, 
+            'pwd' + user_name, 'name' + user_name))
         os.close(tmp_handle)
+
+        return tmp_name
+
+    def test_remove_user_uncommon_home(self):
+        """ Remove a user whom $HOME is not in /home
+        """
+        random_user_name=self.get_new_user()
+        tmp_name = self.create_fake_user_file(random_user_name, fake_home=True)
+        
+        # run the script
+        self.child = pexpect.spawn('sudo', ['--', '/bin/bash', './practica_3.sh', '-s', tmp_name])
+        try:
+            self.child.expect(pexpect.EOF)
+        except:
+            os.unlink(tmp_name)
+            self.assertTrue(False)
+
+        # verify the user is not in the system and the backup has been created
+        users=set()
+        with open('/etc/passwd', 'r') as f:
+            for line in f:
+                users.add(line.split(':')[0])
+                
+        self.assertFalse(random_user_name in users)
+        self.assertTrue(os.path.isfile('/extra/backup/' + random_user_name + ".tar"))
+        os.unlink(tmp_name)
+
+    def test_remove_existing_user(self):
+
+        random_user_name=self.get_new_user()
+        tmp_name = self.create_fake_user_file(random_user_name)
+
+        # run the script
+        self.child = pexpect.spawn('sudo', ['--', '/bin/bash', './practica_3.sh', '-s', tmp_name])
+        self.child.logfile = sys.stdout
+        try: 
+            self.child.expect(pexpect.EOF)
+        except:
+            os.unlink(tmp_name)
+            self.assertTrue(False)
+
+        # verify the user is not in the system and the backup has been created
+        users=set()
+        with open('/etc/passwd', 'r') as f:
+            for line in f:
+                users.add(line.split(':')[0])
+                
+        self.assertFalse(random_user_name in users)
+        self.assertTrue(os.path.isfile('/extra/backup/' + random_user_name + ".tar"))
+        os.unlink(tmp_name)
+
+    def test_existing_user(self):
+
+        random_user_name=self.get_new_user()
+        tmp_name = self.create_fake_user_file(random_user_name)
 
         null_file=open(os.devnull, 'w')
         
