@@ -24,9 +24,9 @@ class TestPractica2_6(unittest.TestCase):
 
             pattern=re.compile('#!/usr/bin/env\s+bash')
             # two options: #!/bin/bash or #!/usr/bin/env bash
-            self.assertTrue((first_line == '#!/bin/bash') or 
+            self.assertTrue((first_line == '#!/bin/bash') or
                     (pattern.match(first_line) != None))
-        
+
     # helper function
     def is_exe(self, fname):
         fstats=os.stat(fname)
@@ -42,17 +42,19 @@ class TestPractica2_6(unittest.TestCase):
         pattern=re.compile('bin\w\w\w')
         candidate_dirs=[ os.path.abspath(home + '/' + d) for d in os.listdir(home) if os.path.isdir(os.path.abspath(home + '/' + d)) and pattern.match(d) ]
         # return the least recently modified directory
-        if len(candidate_dirs) == 0: 
+        if len(candidate_dirs) == 0:
             return True, ""
         else:
             return False, sorted(candidate_dirs, key=lambda d: os.stat(d).st_mtime)[0]
 
-
-
     def test_existing_dir(self):
+        """ This test creates the destination directory if it does not exist
+        """
 
         # if there is no bin_dir, we create one
         bin_dir_required, bin_dir=self.find_bin_dir()
+
+        home=self.home
 
         if bin_dir_required:
             bin_dir=os.path.abspath(home + '/bin' + ''.join(random.choice(string.ascii_letters+string.digits) for _ in range(3)))
@@ -62,46 +64,42 @@ class TestPractica2_6(unittest.TestCase):
             os.mkdir(bin_dir)
 
         # count the number of executables files in current directory
-        exec_files= [ f for f in os.listdir('./') if self.is_exe(f) ]
+        exec_files= [ f for f in os.listdir('./') if self.is_exe(f) and not f.startswith('.') ]
 
-        read_exec_files=[]
-
-        try: 
+        try:
             self.child = pexpect.spawn('/bin/bash ./practica2_6.sh')
-#            self.child.logfile = sys.stdout
-            if bin_dir_required:
-                reg_exp='Se ha creado el directorio {}/(bin\w\w\w)'.format(self.home)
-                match=self.child.expect(reg_exp)
-                bin_dir=os.path.abspath(self.home + '/' + self.child.match.group(1))
         except:
-            self.assertTrue(False)
+            self.assertTrue(False, msg='Error spanwing process')
 
         try:
-            self.child.expect('Directorio destino de copia: {}'.format(bin_dir))
-            second_bin_dir=self.child.match.group().split()[-1]
-            self.assertTrue(second_bin_dir == bin_dir)
+            self.child.expect(pexpect.EOF)
         except:
-            print str(self.child)
-            self.assertTrue(False)
+            self.assertTrue(False, msg='Error expecing EOF')
 
-        try:
-            for _ in exec_files:
-                reg_exp='(.*) ha sido copiado a {}\r\n'.format(bin_dir)
-                self.child.expect(reg_exp)
-                read_exec_files.append(os.path.basename(self.child.match.group(1).split()[-1]))
-            self.child.expect('Se han copiado {} archivos'.format(str(len(exec_files))))
-            # check whether all files have been copied
-            self.assertTrue(set(exec_files) == set(read_exec_files))
-        except:
-            self.assertTrue(False)
-        self.assertTrue(True)
-        
+        # insert all non-empty lines in a list
+        output_lines = [ line for line in self.child.before.splitlines() if line ]
+
+        dstdir_line=output_lines[0]
+        output_lines.pop(0)
+        expected_dstdir_line = 'Directorio destino de copia: {}'.format(bin_dir)
+        self.assertTrue(expected_dstdir_line == dstdir_line, msg='Expected {}, Found: {}'.format(expected_dstdir_line, dstdir_line))
+
+        # Do all matches
+        for fname in exec_files:
+            self.assertTrue('./{} ha sido copiado a {}'.format(fname, bin_dir) in output_lines, msg='{} not found'.format(fname))
+
+        self.assertTrue('Se han copiado {} archivos'.format(str(len(exec_files))))
+        self.assertTrue(len(output_lines) == (len(exec_files)+1))
+
         self.child.terminate(force=True)
-        rmtree(bin_dir)
-        
+
+        if bin_dir_required:
+            rmtree(bin_dir)
 
 
     def test_dir_creation(self):
+        """ This test forces the creation of the destination directory
+        """
 
         # if there is no bin_dir, the script should create one
         bin_dir_required, bin_dir=self.find_bin_dir()
@@ -109,43 +107,46 @@ class TestPractica2_6(unittest.TestCase):
         # remove the directory if it exists, to ensure the creation by the script
         if not bin_dir_required:
             rmtree(bin_dir)
+            bin_dir_required=True
 
         # count the number of executables files in current directory
-        exec_files= [ f for f in os.listdir('./') if self.is_exe(f) ]
+        exec_files= [ f for f in os.listdir('./') if self.is_exe(f) and not f.startswith('.') ]
 
-        read_exec_files=[]
-
-        try: 
+        try:
             self.child = pexpect.spawn('/bin/bash ./practica2_6.sh')
-#            self.child.logfile = sys.stdout
-            if bin_dir_required:
-                reg_exp='Se ha creado el directorio {}/(bin\w\w\w)'.format(self.home)
-                match=self.child.expect(reg_exp)
-                bin_dir=os.path.abspath(self.home + '/' + self.child.match.group(1))
         except:
-            self.assertTrue(False)
+            self.assertTrue(False, msg='Error spanwing process')
 
         try:
-            self.child.expect('Directorio destino de copia: {}'.format(bin_dir))
-            second_bin_dir=self.child.match.group().split()[-1]
-            self.assertTrue(second_bin_dir == bin_dir)
+            self.child.expect(pexpect.EOF)
         except:
-            print str(self.child)
-            self.assertTrue(False)
+            self.assertTrue(False, msg='Error expecing EOF')
 
-        try:
-            for _ in exec_files:
-                reg_exp='(.*) ha sido copiado a {}\r\n'.format(bin_dir)
-                self.child.expect(reg_exp)
-                read_exec_files.append(os.path.basename(self.child.match.group(1).split()[-1]))
-            self.child.expect('Se han copiado {} archivos'.format(str(len(exec_files))))
-            # check whether all files have been copied
-            self.assertTrue(set(exec_files) == set(read_exec_files))
-        except:
-            self.assertTrue(False)
-        self.assertTrue(True)
-        
+        # insert all non-empty lines in a list
+        output_lines = [ line for line in self.child.before.splitlines() if line ]
+
+        if bin_dir_required:
+            fline=output_lines[0]
+            output_lines.pop(0) # remove first element list
+            self.assertTrue(fline.startswith('Se ha creado el directorio '), msg='Invalid directory creation message')
+            bin_dir=os.path.abspath(fline.split(' ')[-1])
+
+        dstdir_line=output_lines[0]
+        output_lines.pop(0)
+        expected_dstdir_line = 'Directorio destino de copia: {}'.format(bin_dir)
+        self.assertTrue(expected_dstdir_line == dstdir_line, msg='Expected {}, Found: {}'.format(expected_dstdir_line, dstdir_line))
+
+        # Do all matches
+        for fname in exec_files:
+            self.assertTrue('./{} ha sido copiado a {}'.format(fname, bin_dir) in output_lines, msg='{} not found'.format(fname))
+
+        self.assertTrue('Se han copiado {} archivos'.format(str(len(exec_files))))
+        self.assertTrue(len(output_lines) == (len(exec_files)+1))
+
         self.child.terminate(force=True)
+
+        if bin_dir_required:
+            rmtree(bin_dir)
 
 if __name__ == "__main__":
     unittest.main()
