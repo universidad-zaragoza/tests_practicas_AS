@@ -53,8 +53,8 @@ del tipo:
           ----------------------------------------------------------------------
           Ran 7 tests in 0.477s
 
-Después `FAIL` se indica que test unitario ha fallado, en este caso
-`test_shebang` lo que nos indicará que debemos revisar la primera línea de
+Después de `FAIL` se indica el nombre del test unitario que ha fallado, en este
+caso `test_shebang` lo que nos indicará que debemos revisar la primera línea de
 nuestro script. Es importante leer el nombre ya que siempre nos informára de la
 parte donde ha ocurrido el error.
 
