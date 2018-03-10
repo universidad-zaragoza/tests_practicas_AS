@@ -31,7 +31,7 @@ class TestPractica3(unittest.TestCase):
 
             pattern=re.compile('#!/usr/bin/env\s+bash')
             # two options: #!/bin/bash or #!/usr/bin/env bash
-            self.assertTrue((first_line == '#!/bin/bash') or 
+            self.assertTrue((first_line == '#!/bin/bash') or
                     (pattern.match(first_line) != None))
 
     def test_required_commands(self):
@@ -62,14 +62,18 @@ class TestPractica3(unittest.TestCase):
         except:
             self.assertTrue(False)
         self.assertTrue(True)
-    
+
     def test_invalid_argument(self):
         self.child = pexpect.spawn('sudo -- /bin/bash ./practica_3.sh -I correct_user_list.txt')
         try:
             self.child.expect_exact('Opcion invalida')
         except:
             self.assertTrue(False)
-        self.assertTrue(True)
+
+        try:
+            self.assertFalse(self.child.expect(pexpect.EOF))
+        except:
+            self.assertTrue(False)
 
     def test_create_extra_backup(self):
         # risky test, it deletes a directory
@@ -77,7 +81,7 @@ class TestPractica3(unittest.TestCase):
 
         if os.path.isdir(backup_dir):
             check_call(["sudo", "rm", "-rf", '{}'.format(backup_dir)])
-        
+
         self.child = pexpect.spawn('sudo', ['--', '/bin/bash', './practica_3.sh', '-s', '/dev/null'])
         try:
             self.child.expect(pexpect.EOF)
@@ -87,7 +91,7 @@ class TestPractica3(unittest.TestCase):
         self.child.close()
         self.assertEqual(self.child.exitstatus, 0)
         self.assertTrue(os.path.isdir(backup_dir))
-            
+
 
     def test_correct_user_list(self):
         self.child = pexpect.spawn('sudo -- /bin/bash ./practica_3.sh -a ./correct_user_list.txt')
@@ -100,7 +104,10 @@ class TestPractica3(unittest.TestCase):
                     self.child.expect_exact(expected_string)
                 except:
                     self.assertTrue(False)
-        self.assertTrue(True)
+        try:
+            self.assertFalse(self.child.expect(pexpect.EOF))
+        except:
+            self.assertTrue(False)
 
     def test_root_user(self):
         self.child = pexpect.spawn('sudo -- /bin/bash ./practica_3.sh -a incorrect_user_list_existing_root.txt')
@@ -110,7 +117,10 @@ class TestPractica3(unittest.TestCase):
         except:
             self.assertTrue(False)
 
-        self.assertTrue(True)
+        try:
+            self.assertFalse(self.child.expect(pexpect.EOF))
+        except:
+            self.assertTrue(False)
 
     def get_new_user(self):
         """ This helper function returns a valid name for a new user
@@ -129,7 +139,7 @@ class TestPractica3(unittest.TestCase):
         """ this function returns the name of a temporary file with a new user named user_name.
             The file has been closed and it is the caller responsability to remove the generated file.
         """
-        
+
         tmp_handle, tmp_name = mkstemp()
 
         command_list = [ "sudo", "useradd", "-m" ]
@@ -140,7 +150,7 @@ class TestPractica3(unittest.TestCase):
         command_list += ["{}".format(user_name)]
         check_call(command_list)
 
-        os.write(tmp_handle, '{}, {}, {}\n'.format(user_name, 
+        os.write(tmp_handle, '{}, {}, {}\n'.format(user_name,
             'pwd' + user_name, 'name' + user_name))
         os.close(tmp_handle)
 
@@ -151,7 +161,7 @@ class TestPractica3(unittest.TestCase):
         """
         random_user_name=self.get_new_user()
         tmp_name = self.create_fake_user_file(random_user_name, fake_home=True)
-        
+
         # run the script
         self.child = pexpect.spawn('sudo', ['--', '/bin/bash', './practica_3.sh', '-s', tmp_name])
         try:
@@ -165,7 +175,7 @@ class TestPractica3(unittest.TestCase):
         with open('/etc/passwd', 'r') as f:
             for line in f:
                 users.add(line.split(':')[0])
-                
+
         self.assertFalse(random_user_name in users)
         self.assertTrue(os.path.isfile('/extra/backup/' + random_user_name + ".tar"))
         os.unlink(tmp_name)
@@ -178,8 +188,8 @@ class TestPractica3(unittest.TestCase):
         # run the script
         self.child = pexpect.spawn('sudo', ['--', '/bin/bash', './practica_3.sh', '-s', tmp_name])
         self.child.logfile = sys.stdout
-        try: 
-            self.child.expect(pexpect.EOF)
+        try:
+            self.assertFalse(self.child.expect(pexpect.EOF))
         except:
             os.unlink(tmp_name)
             self.assertTrue(False)
@@ -189,7 +199,7 @@ class TestPractica3(unittest.TestCase):
         with open('/etc/passwd', 'r') as f:
             for line in f:
                 users.add(line.split(':')[0])
-                
+
         self.assertFalse(random_user_name in users)
         self.assertTrue(os.path.isfile('/extra/backup/' + random_user_name + ".tar"))
         os.unlink(tmp_name)
@@ -200,7 +210,7 @@ class TestPractica3(unittest.TestCase):
         tmp_name = self.create_fake_user_file(random_user_name)
 
         null_file=open(os.devnull, 'w')
-        
+
         self.child = pexpect.spawn('sudo', ['--', '/bin/bash', './practica_3.sh', '-a', tmp_name])
 
         try:
@@ -208,13 +218,17 @@ class TestPractica3(unittest.TestCase):
             self.child.expect_exact(expected_string)
         except:
             # ensure the newly created user is deleted
-            check_call(["sudo", "userdel", "-r", "-f", "{}".format(random_user_name)], 
+            check_call(["sudo", "userdel", "-r", "-f", "{}".format(random_user_name)],
                     stdout=null_file, stderr=null_file)
             self.assertTrue(False)
             os.unlink(tmp_name)
             null_file.close()
 
-        self.assertTrue(True)
+        try:
+            self.assertFalse(self.child.expect(pexpect.EOF))
+        except:
+            self.assertTrue(False)
+
         check_call(["sudo", "userdel", "-r", "-f", "{}".format(random_user_name)],
                     stdout=null_file, stderr=null_file)
         os.unlink(tmp_name)
