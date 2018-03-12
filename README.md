@@ -22,7 +22,10 @@ pull](https://git-scm.com/docs/git-pull) o [git
 reset](https://git-scm.com/docs/git-reset) si los has modificado y no quieres
 preservar las modificaciones.
 
-    as@as0:~/as_tests_practicas/git [pull|reset --hard] origin/master
+    as@as0:~/as_tests_practicas/git pull origin/master
+    
+o
+    as@as0:~/as_tests_practicas/git fetch --all && git reset --hard origin/master
 
 ## Utilización
 
