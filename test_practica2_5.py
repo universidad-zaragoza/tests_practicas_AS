@@ -81,13 +81,23 @@ class TestPractica2_5(unittest.TestCase):
             self.assertTrue(False, msg="Error sending directory name")
 
         try:
-            self.assertFalse(self.child.expect_exact('El numero de ficheros y directorios en {} es de {} y {}, respectivamente'.format(tmp_dir_name, n_files, n_dirs)))
+            self.assertFalse(self.child.expect_exact(tmp_dir_name + "\r\n"))
         except:
-            print self.child.before
-            print str(self.child)
-            self.assertTrue(False)
+            self.assertTrue(False, msg="Error reading directory name")
 
-        self.assertFalse(self.child.expect_exact(pexpect.EOF))
+        try:
+            self.assertFalse(self.child.expect_exact(pexpect.EOF))
+        except:
+            self.assertTrue(False, msg="Error reading directory name")
+
+        # after the execution has completed check the output
+        output_lines = [ line for line in self.child.before.splitlines() if line ]
+        self.assertEqual(len(output_lines), 1, msg='Invalid number of output lines')
+
+        expected_line = 'El numero de ficheros y directorios en {} es de {} y {}, respectivamente'.format(tmp_dir_name, n_files, n_dirs)
+        self.assertEqual(output_lines[0], expected_line, msg='Invalid output line.\n' \
+                'Expected: ' + expected_line + '\n' \
+                'Found:    ' + output_lines[0])
 
         rmtree(tmp_dir_name)
         self.child.terminate(force=True)
