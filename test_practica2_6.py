@@ -157,6 +157,51 @@ class TestPractica2_6(unittest.TestCase):
 
         self.child.terminate(force=True)
 
+    def test_no_files_to_copy(self):
+        """ This test creates a new empty directory and runs the script there
+        """
+
+        # if there is no bin_dir, we create one
+        bin_dir_required, bin_dir=self.find_bin_dir()
+
+        home=self.home
+
+        if bin_dir_required:
+            bin_dir=os.path.abspath(home + '/bin' + ''.join(random.choice(string.ascii_letters+string.digits) for _ in range(3)))
+            while os.path.isdir(bin_dir):
+                bin_dir=os.path.abspath(home + '/bin' + ''.join(random.choice(string.ascii_letters+string.digits) for _ in range(3)))
+            # directory creation
+            os.mkdir(bin_dir)
+
+        # create a temporal directory and copy the script there
+        tmp_dir=mkdtemp(dir='./')
+
+        try:
+            self.child = pexpect.spawn('/bin/bash ../practica2_6.sh', cwd=tmp_dir)
+        except:
+            self.assertTrue(False, msg='Error spanwing process')
+
+        try:
+            self.child.expect(pexpect.EOF)
+        except:
+            self.assertTrue(False, msg='Error expecing EOF')
+
+        # insert all non-empty lines in a list
+        output_lines = [ line for line in self.child.before.splitlines() if line ]
+
+        expected_dstdir_line = 'Directorio destino de copia: {}'.format(bin_dir)
+        self.assertTrue(expected_dstdir_line == output_lines[0], msg='Expected: {}, Found: {}'.format(expected_dstdir_line, output_lines[0]))
+
+        expected_ncopied_line = 'No se ha copiado ningun archivo'
+        self.assertEqual(expected_ncopied_line, output_lines[1], msg='Expected: {}, Found: {}'.format(expected_ncopied_line, output_lines[1]))
+
+        self.child.terminate(force=True)
+
+        if bin_dir_required:
+            rmtree(bin_dir)
+
+        rmtree(tmp_dir)
+
 
     def test_dir_creation(self):
         """ This test forces the creation of the destination directory
