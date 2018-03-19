@@ -5,9 +5,10 @@ import pexpect
 import random
 import re
 from shutil import rmtree
-from stat import S_IXUSR
+from stat import S_IXUSR, S_ISREG, S_IEXEC
 import string
 import sys
+from tempfile import mkdtemp
 import unittest
 
 class TestPractica2_6(unittest.TestCase):
@@ -28,9 +29,12 @@ class TestPractica2_6(unittest.TestCase):
                     (pattern.match(first_line) != None))
 
     # helper function
-    def is_exe(self, fname):
-        fstats=os.stat(fname)
-        return fstats.st_mode & S_IXUSR
+    def is_reg_exe(self, fname):
+        """ This function returns true if the file name fname
+            is a regular file and can be executed
+        """
+        st_mode = os.stat(fname).st_mode
+        return st_mode & S_IXUSR and S_ISREG(st_mode)
 
     def find_bin_dir(self):
         """ Find the directory bin\w\w\w that is the least frequency modified
@@ -64,7 +68,7 @@ class TestPractica2_6(unittest.TestCase):
             os.mkdir(bin_dir)
 
         # count the number of executables files in current directory
-        exec_files= [ f for f in os.listdir('./') if self.is_exe(f) and not f.startswith('.') ]
+        exec_files= [ f for f in os.listdir('./') if self.is_reg_exe(f) and not f.startswith('.') ]
 
         try:
             self.child = pexpect.spawn('/bin/bash ./practica2_6.sh')
@@ -96,6 +100,63 @@ class TestPractica2_6(unittest.TestCase):
         if bin_dir_required:
             rmtree(bin_dir)
 
+    def test_subdir_no_copy(self):
+        """ Create a subdirectory to avoid its copy
+        """
+
+        # if there is no bin_dir, we create one
+        bin_dir_required, bin_dir=self.find_bin_dir()
+
+        home=self.home
+
+        if bin_dir_required:
+            bin_dir=os.path.abspath(home + '/bin' + ''.join(random.choice(string.ascii_letters+string.digits) for _ in range(3)))
+            while os.path.isdir(bin_dir):
+                bin_dir=os.path.abspath(home + '/bin' + ''.join(random.choice(string.ascii_letters+string.digits) for _ in range(3)))
+            # directory creation
+            os.mkdir(bin_dir)
+
+
+        # create a subdirectory in the current directory
+        tmp_dir=mkdtemp(prefix=' with spaces ', dir='./')
+        # ensure executable mode
+        os.chmod(tmp_dir, os.stat(tmp_dir).st_mode | S_IEXEC)
+
+        # count the number of executables files in current directory
+        exec_files= [ f for f in os.listdir('./') if self.is_reg_exe(f) and not f.startswith('.') ]
+
+        try:
+            self.child = pexpect.spawn('/bin/bash ./practica2_6.sh')
+        except:
+            self.assertTrue(False, msg='Error spanwing process')
+
+        try:
+            self.child.expect(pexpect.EOF)
+        except:
+            self.assertTrue(False, msg='Error expecing EOF')
+
+        # insert all non-empty lines in a list
+        output_lines = [ line for line in self.child.before.splitlines() if line ]
+
+        dstdir_line=output_lines[0]
+        output_lines.pop(0)
+        expected_dstdir_line = 'Directorio destino de copia: {}'.format(bin_dir)
+        self.assertTrue(expected_dstdir_line == dstdir_line, msg='Expected {}, Found: {}'.format(expected_dstdir_line, dstdir_line))
+
+        # Do all matches
+        for fname in exec_files:
+            self.assertTrue('./{} ha sido copiado a {}'.format(fname, bin_dir) in output_lines, msg='{} not found'.format(fname))
+
+        self.assertTrue('Se han copiado {} archivos'.format(str(len(exec_files))))
+        self.assertTrue(len(output_lines) == (len(exec_files)+1))
+
+        if bin_dir_required:
+            rmtree(bin_dir)
+
+        rmtree(tmp_dir)
+
+        self.child.terminate(force=True)
+
 
     def test_dir_creation(self):
         """ This test forces the creation of the destination directory
@@ -110,7 +171,7 @@ class TestPractica2_6(unittest.TestCase):
             bin_dir_required=True
 
         # count the number of executables files in current directory
-        exec_files= [ f for f in os.listdir('./') if self.is_exe(f) and not f.startswith('.') ]
+        exec_files= [ f for f in os.listdir('./') if self.is_reg_exe(f) and not f.startswith('.') ]
 
         try:
             self.child = pexpect.spawn('/bin/bash ./practica2_6.sh')
