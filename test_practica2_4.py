@@ -23,12 +23,12 @@ class TestPractica2_4(unittest.TestCase):
 
             pattern=re.compile('#!/usr/bin/env\s+bash')
             # two options: #!/bin/bash or #!/usr/bin/env bash
-            self.assertTrue((first_line == '#!/bin/bash') or 
+            self.assertTrue((first_line == '#!/bin/bash') or
                     (pattern.match(first_line) != None))
 
     def test_lower_case(self):
         letra = random.choice(string.ascii_lowercase)
-        try: 
+        try:
             self.child = pexpect.spawn('/bin/bash ./practica2_4.sh')
             self.child.expect('Introduzca una tecla: ')
             self.child.sendline(letra)
@@ -36,12 +36,12 @@ class TestPractica2_4(unittest.TestCase):
         except:
             self.assertTrue(False)
         self.assertTrue(True)
-        
+
         self.child.terminate(force=True)
-    
+
     def test_upper_case(self):
         letra = random.choice(string.ascii_uppercase)
-        try: 
+        try:
             self.child = pexpect.spawn('/bin/bash ./practica2_4.sh')
             self.child.expect('Introduzca una tecla: ')
             self.child.sendline(letra)
@@ -49,12 +49,12 @@ class TestPractica2_4(unittest.TestCase):
         except:
             self.assertTrue(False)
         self.assertTrue(True)
-        
+
         self.child.terminate(force=True)
-    
+
     def test_digit(self):
         digit = random.choice(string.digits)
-        try: 
+        try:
             self.child = pexpect.spawn('/bin/bash ./practica2_4.sh')
             self.child.expect('Introduzca una tecla: ')
             self.child.sendline(digit)
@@ -62,11 +62,11 @@ class TestPractica2_4(unittest.TestCase):
         except:
             self.assertTrue(False)
         self.assertTrue(True)
-        
+
         self.child.terminate(force=True)
 
     def test_special_char(self):
-        try: 
+        try:
             self.child = pexpect.spawn('/bin/bash ./practica2_4.sh')
             self.child.expect('Introduzca una tecla: ')
             self.child.sendline('\t')
@@ -75,10 +75,10 @@ class TestPractica2_4(unittest.TestCase):
         except:
             self.assertTrue(False)
         self.assertTrue(True)
-        
+
         self.child.terminate(force=True)
 
-    
+
 
 if __name__ == "__main__":
     unittest.main()

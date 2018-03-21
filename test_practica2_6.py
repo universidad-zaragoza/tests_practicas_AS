@@ -157,6 +157,7 @@ class TestPractica2_6(unittest.TestCase):
 
         self.child.terminate(force=True)
 
+    @unittest.skip("Activar en curso 2018/2019")
     def test_no_files_to_copy(self):
         """ This test creates a new empty directory and runs the script there
         """
