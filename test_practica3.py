@@ -35,17 +35,49 @@ class TestPractica3(unittest.TestCase):
                     (pattern.match(first_line) != None))
 
     def test_required_commands(self):
-        # ToDo fix to skip comments
+        """ This test checks for required commands and options for useradd
+        """
+
+        def ensure_useradd_options(word_list):
+            """ Given a list of words, this functions returns true if useradd includes
+                options:
+                -U
+                -k /etc/skel
+                -K UID_MIN=1000
+             """
+
+            idx=words_in_line.index('useradd')
+
+            self.assertTrue('-U' in words_in_line[idx:],
+                            msg={'useradd does not contain option -U'})
+
+            if '-k' in words_in_line[idx:-1]:
+                idx_k=words_in_line.index('-k')
+                self.assertTrue(words_in_line[idx_k+1]=='/etc/skel',
+                        msg={'useradd does not contain -k /etc/skel'})
+
+            if '-K' in words_in_line[idx:-1]:
+                idx_k=words_in_line.index('-K')
+                self.assertTrue(words_in_line[idx_k+1]=='UID_MIN=1000',
+                        msg={'useradd does not contain -K UID_MIN=1000'})
+
+            return
 
         required_commands=frozenset(['useradd', 'userdel', 'usermod', 'chpasswd'])
 
-        script_words=set()
-
         with open('./practica_3.sh') as f:
+            script_words=set()
             for l in f:
-                script_words.update([ w.rstrip('\n') for w in l.split()])
+                # skip commented lines
+                if l[0] == '#':
+                    continue
+                words_in_line=l.split()
+                script_words.update(w.rstrip('\n') for w in words_in_line)
+                if 'useradd' in words_in_line:
+                    ensure_useradd_options(words_in_line)
 
-        self.assertTrue(script_words.issuperset(required_commands))
+            self.assertTrue(script_words.issuperset(required_commands),
+                    msg='The script does not contain all required commands')
 
     def test_number_arguments(self):
         self.child = pexpect.spawn('sudo /bin/bash ./practica_3.sh -a correct_user_list.txt extra_arg')
@@ -104,6 +136,8 @@ class TestPractica3(unittest.TestCase):
                     self.child.expect_exact(expected_string)
                 except:
                     self.assertTrue(False)
+
+                # read /etc/passwd
         try:
             self.assertFalse(self.child.expect(pexpect.EOF))
         except:
@@ -220,7 +254,7 @@ class TestPractica3(unittest.TestCase):
             # ensure the newly created user is deleted
             check_call(["sudo", "userdel", "-r", "-f", "{}".format(random_user_name)],
                     stdout=null_file, stderr=null_file)
-            self.assertTrue(False)
+            self.assertTrue(False, msg='Expected: {}\nFound: {}'.format(expected_string, self.child.before))
             os.unlink(tmp_name)
             null_file.close()
 
