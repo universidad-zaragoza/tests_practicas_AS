@@ -67,12 +67,21 @@ class TestPractica3(unittest.TestCase):
 
         with open('./practica_3.sh') as f:
             script_words=set()
-            for l in f:
-                # skip commented lines
-                if l[0] == '#':
+            for full_line in f:
+                # remove spaces at beginning of line and end of lines
+                l = full_line.lstrip().rstrip('\n')
+
+                # skip empty and commented lines
+                if not l or l[0] == '#':
                     continue
                 words_in_line=l.split()
-                script_words.update(w.rstrip('\n') for w in words_in_line)
+
+                # remove commented parts in valid lines
+                if '#' in words_in_line:
+                    idx=words_in_line.index('#')
+                    words_in_line=words_in_line[:idx]
+
+                script_words.update(words_in_line)
                 if 'useradd' in words_in_line:
                     ensure_useradd_options(words_in_line)
 
