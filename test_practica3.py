@@ -17,7 +17,7 @@ class TestPractica3(unittest.TestCase):
 
     # clean before every test, just in case something goes wrong
     def setUp(self):
-        check_call(["./remove_possible_users.sh"])
+        check_call(["/bin/bash", "./remove_possible_users.sh"])
 
     def tearDown(self):
         try:
@@ -63,7 +63,7 @@ class TestPractica3(unittest.TestCase):
 
             return
 
-        required_commands=frozenset(['useradd', 'userdel', 'usermod', 'chpasswd'])
+        required_commands=frozenset(['useradd', 'userdel', 'usermod', 'chpasswd', 'tar'])
 
         with open('./practica_3.sh') as f:
             script_words=set()
@@ -85,8 +85,11 @@ class TestPractica3(unittest.TestCase):
                 if 'useradd' in words_in_line:
                     ensure_useradd_options(words_in_line)
 
-            self.assertTrue(script_words.issuperset(required_commands),
-                    msg='The script does not contain all required commands')
+            missing_commands = required_commands - (required_commands & script_words)
+            self.assertFalse(missing_commands,
+                    msg='The script does not contain all required commands.'
+                    ' Missing commands are: {}'.format(
+                        ", ".join(missing_commands)))
 
     def test_number_arguments(self):
         self.child = pexpect.spawn('sudo /bin/bash ./practica_3.sh -a correct_user_list.txt extra_arg')
