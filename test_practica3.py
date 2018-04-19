@@ -38,35 +38,40 @@ class TestPractica3(unittest.TestCase):
         """ This test checks for required commands and options for useradd
         """
 
-        def ensure_useradd_options(word_list):
-            """ Given a list of words, this functions returns true if useradd includes
-                options:
+        def ensure_useradd_options(required_options, word_list):
+            """ Given a list of words, this functions removes useradd options
+                if they exists:
                 -U
                 -k /etc/skel
                 -K UID_MIN=1000
              """
 
             idx=words_in_line.index('useradd')
+            lenght=len(words_in_line)
 
-            self.assertTrue('-U' in words_in_line[idx:],
-                            msg={'useradd does not contain option -U'})
+            if '-U' in words_in_line:
+                required_options.remove('-U')
 
             if '-k' in words_in_line[idx:-1]:
                 idx_k=words_in_line.index('-k')
-                self.assertTrue(words_in_line[idx_k+1]=='/etc/skel',
-                        msg={'useradd does not contain -k /etc/skel'})
+                if lenght > idx_k + 1 :
+                    required_options.discard('-k {}'.format(words_in_line[idx_k+1]))
 
             if '-K' in words_in_line[idx:-1]:
                 idx_k=words_in_line.index('-K')
-                self.assertTrue(words_in_line[idx_k+1]=='UID_MIN=1000',
-                        msg={'useradd does not contain -K UID_MIN=1000'})
+                # handle spaces in between
+                if (idx_k+1 < lenght and 'UID_MIN=1000' == words_in_line[idx_k+1]) \
+                        or ('UID_MIN' == words_in_line[idx_k+1] and idx_k+2 < lenght and '=1000' == words_in_line[idx_k+2]) \
+                        or ('UID_MIN' == words_in_line[idx_k+1] and idx_k+3 < lenght and '=' == words_in_line[idx_k+2] and '1000' == words_in_line[idx_k+3]):
+                    required_options.discard('-K UID_MIN=1000')
 
-            return
+            return required_options
 
-        required_commands=frozenset(['useradd', 'userdel', 'usermod', 'chpasswd', 'tar'])
+        required_commands=set(['useradd', 'userdel', 'usermod', 'chpasswd', 'tar'])
+        required_useradd_options=set(['-U',  '-k /etc/skel', '-K UID_MIN=1000'])
 
         with open('./practica_3.sh') as f:
-            script_words=set()
+            # flag for checking that at least one invocation to useradd includes all required options
             for full_line in f:
                 # remove spaces at beginning of line and end of lines
                 l = full_line.lstrip().rstrip('\n')
@@ -81,15 +86,25 @@ class TestPractica3(unittest.TestCase):
                     idx=words_in_line.index('#')
                     words_in_line=words_in_line[:idx]
 
-                script_words.update(words_in_line)
-                if 'useradd' in words_in_line:
-                    ensure_useradd_options(words_in_line)
+                # only check if there are pending commands
+                if required_commands:
+                    for word in words_in_line:
+                        required_commands.discard(word)
 
-            missing_commands = required_commands - (required_commands & script_words)
-            self.assertFalse(missing_commands,
+                if required_useradd_options and 'useradd' in words_in_line:
+                    ensure_useradd_options(required_useradd_options,
+                            words_in_line)
+
+            self.assertFalse(required_commands,
                     msg='The script does not contain all required commands.'
                     ' Missing commands are: {}'.format(
-                        ", ".join(missing_commands)))
+                        ", ".join(required_commands)))
+
+            self.assertFalse(required_useradd_options,
+                    msg='The script does not contain all required useradd options.'
+                    ' Missing options are: {}'.format(
+                        ", ".join(required_useradd_options)))
+
 
     def test_number_arguments(self):
         self.child = pexpect.spawn('sudo /bin/bash ./practica_3.sh -a correct_user_list.txt extra_arg')
