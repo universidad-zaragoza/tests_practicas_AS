@@ -57,13 +57,13 @@ class TestPractica3(unittest.TestCase):
                 if lenght > idx_k + 1 :
                     required_options.discard('-k {}'.format(words_in_line[idx_k+1]))
 
+            # useradd can have multiple -K options
+            for idx_k in [ i for i, word in enumerate(words_in_line[idx:]) if word == '-K' ]:
+                if idx_k+1 < lenght:
+                    required_options.discard('-K {}'.format(words_in_line[idx_k+1]))
+
             if '-K' in words_in_line[idx:-1]:
                 idx_k=words_in_line.index('-K')
-                # handle spaces in between
-                if (idx_k+1 < lenght and 'UID_MIN=1000' == words_in_line[idx_k+1]) \
-                        or ('UID_MIN' == words_in_line[idx_k+1] and idx_k+2 < lenght and '=1000' == words_in_line[idx_k+2]) \
-                        or ('UID_MIN' == words_in_line[idx_k+1] and idx_k+3 < lenght and '=' == words_in_line[idx_k+2] and '1000' == words_in_line[idx_k+3]):
-                    required_options.discard('-K UID_MIN=1000')
 
             return required_options
 
@@ -85,6 +85,10 @@ class TestPractica3(unittest.TestCase):
                 if '#' in words_in_line:
                     idx=words_in_line.index('#')
                     words_in_line=words_in_line[:idx]
+
+                # verify the script does not include sudo
+                self.assertFalse('sudo' in words_in_line,
+                        msg='Line {} contains the sudo command'.format(l))
 
                 # only check if there are pending commands
                 if required_commands:
@@ -151,6 +155,36 @@ class TestPractica3(unittest.TestCase):
         self.assertEqual(self.child.exitstatus, 0)
         self.assertTrue(os.path.isdir(backup_dir))
 
+    def test_login_users(self):
+        """ Try to su into the newly created users
+        """
+
+        with open(os.devnull, 'w') as FNULL:
+            check_call(["sudo", "--", "/bin/bash", "./practica_3.sh", "-a", "./correct_user_list.txt"],
+                    stdout=FNULL, stderr=FNULL)
+
+        with open('./correct_user_list.txt', 'r') as f:
+            for line in f:
+                user, pwd, name = [ w.rstrip(' \n').lstrip(' ') for w in line.split(',') ]
+
+                self.child = pexpect.spawn('su {}'.format(user))
+                try:
+                    self.child.expect_exact('Password: ')
+                except:
+                    self.assertTrue(False, msg='Unable to run su')
+                self.child.sendline(pwd)
+                try:
+                    self.child.expect('\$')
+                except:
+                    self.assertTrue(False, msg='Unable to login with su')
+                self.child.sendline('exit')
+
+                try:
+                    self.assertFalse(self.child.expect(pexpect.EOF))
+                except:
+                    self.assertTrue(False, msg='Invalid exit')
+
+                self.child.close()
 
     def test_correct_user_list(self):
         self.child = pexpect.spawn('sudo -- /bin/bash ./practica_3.sh -a ./correct_user_list.txt')
@@ -164,11 +198,11 @@ class TestPractica3(unittest.TestCase):
                 except:
                     self.assertTrue(False)
 
-                # read /etc/passwd
         try:
             self.assertFalse(self.child.expect(pexpect.EOF))
         except:
             self.assertTrue(False)
+
 
     def test_root_user(self):
         self.child = pexpect.spawn('sudo -- /bin/bash ./practica_3.sh -a incorrect_user_list_existing_root.txt')

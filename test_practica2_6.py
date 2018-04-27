@@ -36,15 +36,20 @@ class TestPractica2_6(unittest.TestCase):
         st_mode = os.stat(fname).st_mode
         return st_mode & S_IXUSR and S_ISREG(st_mode)
 
+    def find_bin_dir_candidates(self):
+        """ Return a list of directories matching the binXXX pattern
+        """
+        home=self.home
+        pattern=re.compile('bin\w\w\w')
+        return [ os.path.abspath(home + '/' + d) for d in os.listdir(home) if os.path.isdir(os.path.abspath(home + '/' + d)) and pattern.match(d) ]
+
     def find_bin_dir(self):
         """ Find the directory bin\w\w\w that is the least frequency modified
 
             Returns a tuple with a boolean value and a directory name
         """
 
-        home=self.home
-        pattern=re.compile('bin\w\w\w')
-        candidate_dirs=[ os.path.abspath(home + '/' + d) for d in os.listdir(home) if os.path.isdir(os.path.abspath(home + '/' + d)) and pattern.match(d) ]
+        candidate_dirs= self.find_bin_dir_candidates()
         # return the least recently modified directory
         if len(candidate_dirs) == 0:
             return True, ""
@@ -208,13 +213,11 @@ class TestPractica2_6(unittest.TestCase):
         """ This test forces the creation of the destination directory
         """
 
-        # if there is no bin_dir, the script should create one
-        bin_dir_required, bin_dir=self.find_bin_dir()
-
-        # remove the directory if it exists, to ensure the creation by the script
-        if not bin_dir_required:
+        for bin_dir in self.find_bin_dir_candidates():
             rmtree(bin_dir)
-            bin_dir_required=True
+
+        # if there is no bin_dir, the script should create one
+        bin_dir_required=True
 
         # count the number of executables files in current directory
         exec_files= [ f for f in os.listdir('./') if self.is_reg_exe(f) and not f.startswith('.') ]
