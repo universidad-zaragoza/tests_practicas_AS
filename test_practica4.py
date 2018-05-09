@@ -29,17 +29,17 @@ class TestPractica4(unittest.TestCase):
 
             pattern=re.compile('#!/usr/bin/env\s+bash')
             # two options: #!/bin/bash or #!/usr/bin/env bash
-            self.assertTrue((first_line == '#!/bin/bash') or 
+            self.assertTrue((first_line == '#!/bin/bash') or
                     (pattern.match(first_line) != None))
 
     def test_connectivity(self):
         """ Check whether the expected nodes are alive
         """
-        
+
         for ip in self.IPs:
             try:
                 s=pxssh.pxssh(options={"PasswordAuthentication" : "no"})
-                s.login(ip, "as", ssh_key="~/.ssh/id_as_ed255519")
+                s.login(ip, "as", ssh_key="~/.ssh/id_as_ed25519")
                 # send inocuous command
                 s.sendline('true')
                 self.assertTrue(s.prompt())
@@ -56,11 +56,11 @@ class TestPractica4(unittest.TestCase):
         pattern = re.compile('^\s*PermitRootLogin\s+no')
         # remove escaped characters in case the string supports color
         rem_escape = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')
-        
+
         for ip in self.IPs:
             try:
                 s=pxssh.pxssh(options={"PasswordAuthentication" : "no"})
-                s.login(ip, "as", ssh_key="~/.ssh/id_as_ed255519")
+                s.login(ip, "as", ssh_key="~/.ssh/id_as_ed25519")
                 s.sendline('grep -E "^\s*PermitRootLogin\s+no" /etc/ssh/sshd_config')
                 self.assertTrue(s.prompt())
                 line_to_match=rem_escape.sub('', s.before.splitlines()[-1])
