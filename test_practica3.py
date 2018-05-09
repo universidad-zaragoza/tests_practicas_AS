@@ -44,6 +44,7 @@ class TestPractica3(unittest.TestCase):
                 -U
                 -k /etc/skel
                 -K UID_MIN=1000
+                -c
              """
 
             idx=words_in_line.index('useradd')
@@ -51,6 +52,9 @@ class TestPractica3(unittest.TestCase):
 
             if '-U' in words_in_line:
                 required_options.remove('-U')
+            # ToDo double-check that the name is correct
+            if '-c' in words_in_line:
+                required_options.remove('-c')
 
             if '-k' in words_in_line[idx:-1]:
                 idx_k=words_in_line.index('-k')
@@ -68,7 +72,7 @@ class TestPractica3(unittest.TestCase):
             return required_options
 
         required_commands=set(['useradd', 'userdel', 'usermod', 'chpasswd', 'tar'])
-        required_useradd_options=set(['-U',  '-k /etc/skel', '-K UID_MIN=1000'])
+        required_useradd_options=set(['-U',  '-k /etc/skel', '-K UID_MIN=1000', '-c'])
 
         with open('./practica_3.sh') as f:
             # flag for checking that at least one invocation to useradd includes all required options
