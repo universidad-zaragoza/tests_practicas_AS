@@ -76,8 +76,8 @@ class TestPractica2_5(unittest.TestCase):
             self.assertFalse(self.child.expect_exact('Introduzca el nombre de un directorio: '))
             self.child.sendline(tmp_dir_name)
         except:
-            print self.child.before
-            print str(self.child)
+            print(self.child.before)
+            print(str(self.child))
             self.assertTrue(False, msg="Error sending directory name")
 
         try:

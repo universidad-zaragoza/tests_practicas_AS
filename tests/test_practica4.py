@@ -45,7 +45,7 @@ class TestPractica4(unittest.TestCase):
                 self.assertTrue(s.prompt())
                 s.logout()
             except pxssh.ExceptionPxssh as e:
-                print 'Login to {} failed!, error: {}'.format(ip, e)
+                print('Login to {} failed!, error: {}'.format(ip, e))
                 self.assertTrue(False)
         self.assertTrue(True)
 
@@ -68,8 +68,8 @@ class TestPractica4(unittest.TestCase):
                 s.logout()
             except pxssh.ExceptionPxssh as e:
                 self.assertTrue(False)
-                print s.before
-                print 'Sudo verification or login to {} failed!, error: {}'.format(ip, e)
+                print(s.before)
+                print('Sudo verification or login to {} failed!, error: {}'.format(ip, e))
 
         self.assertTrue(True)
 

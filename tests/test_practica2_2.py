@@ -34,22 +34,22 @@ class TestPractica2_2(unittest.TestCase):
 
             pattern=re.compile('#!/usr/bin/env\s+bash')
             # two options: #!/bin/bash or #!/usr/bin/env bash
-            self.assertTrue((first_line == '#!/bin/bash') or 
+            self.assertTrue((first_line == '#!/bin/bash') or
                     (pattern.match(first_line) != None))
 
     def test_spaces_in_name(self):
         """ Check whether the script supports filenames with spaces
         """
-        # creation of the process every time because we have to change the 
+        # creation of the process every time because we have to change the
         # argument list
-        try: 
+        try:
             self.child = pexpect.spawn('/bin/bash ./practica2_2.sh "{}"'.format(self.tmp_files[0]))
         except:
             self.assertTrue(False)
         self.assertTrue(True)
-        
+
         self.child.terminate(force=True)
-    
+
     def test_directory(self):
         try:
             self.child = pexpect.spawn('/bin/bash ./practica2_2.sh "{}"'.format(self.tmp_dirs[0]))
@@ -58,10 +58,10 @@ class TestPractica2_2(unittest.TestCase):
         try:
             self.child.expect('{} no es un fichero'.format(self.tmp_dirs[0]))
         except:
-            print str(self.child)
+            print(str(self.child))
             self.assertTrue(False)
         self.assertTrue(True)
-        
+
         self.child.terminate(force=True)
 
     def test_invalid_name(self):
@@ -75,14 +75,14 @@ class TestPractica2_2(unittest.TestCase):
         except:
             self.assertTrue(False)
         self.assertTrue(True)
-        
+
         self.child.terminate(force=True)
 
     def test_list_files(self):
-        """ Run the program with 3 arguments, two valid files with a 
+        """ Run the program with 3 arguments, two valid files with a
             directory in between.
 
-            Note that this test do not handle the case when more requests 
+            Note that this test do not handle the case when more requests
             to hit a key to continue
         """
 

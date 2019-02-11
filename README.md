@@ -6,12 +6,17 @@ grado de Ingeniería en Informática de la Universidad de Zaragoza.
 
 ## Requerimientos
 
-Los tests requieren de un interprete de python y de la biblioteca
+Los tests requieren de un interprete de python versión 2.7 y de la biblioteca
 [pexpect](https://pexpect.readthedocs.io/en/stable/).
+
+Pexpect se puede instalar con [pip](https://pypi.org/project/pip/) ejecutando el comando:
+
+    pip install pexpect
 
 ## Descarga y actualización de los tests
 
-Los tests se pueden descargar/clonar utilizando el comando:
+Los tests se encuentran dentro de un repositorio git y se pueden
+descargar/clonar utilizando el comando:
 
     as@as0:~/git clone https://gitlab.unizar.es/dario/as_tests_practicas.git
 
@@ -23,7 +28,7 @@ reset](https://git-scm.com/docs/git-reset) si los has modificado y no quieres
 preservar las modificaciones.
 
     as@as0:~/as_tests_practicas/git pull origin/master
-    
+
 o
     as@as0:~/as_tests_practicas/git fetch --all && git reset --hard origin/master
 

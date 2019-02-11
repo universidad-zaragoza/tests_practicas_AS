@@ -15,7 +15,7 @@ class TestPractica2_1(unittest.TestCase):
         self.child = pexpect.spawn('/bin/bash ./practica2_1.sh')
         # self.child.logfile = sys.stdout
 
-        # create a temporal file 
+        # create a temporal file
         self.tmp_handle, self.tmp_name = mkstemp(prefix='with_space ')
 
     def tearDown(self):
@@ -30,22 +30,22 @@ class TestPractica2_1(unittest.TestCase):
 
             pattern=re.compile('#!/usr/bin/env\s+bash')
             # two options: #!/bin/bash or #!/usr/bin/env bash
-            self.assertTrue((first_line == '#!/bin/bash') or 
+            self.assertTrue((first_line == '#!/bin/bash') or
                     (pattern.match(first_line) != None), msg='Invalid shebang')
 
     def test_no_permit(self):
         self.child.expect('Introduzca el nombre del fichero: ')
-        os.chmod(self.tmp_name, 0000)
+        os.chmod(self.tmp_name, 0o000)
         self.child.sendline(self.tmp_name)
         try:
             self.child.expect('Los permisos del archivo {} son: ---\r\n'.format(self.tmp_name))
         except:
             self.assertTrue(False, msg='Incorrect permit. Expected value: ---')
         self.assertTrue(True)
-    
+
     def test_exec_permit(self):
         self.child.expect('Introduzca el nombre del fichero: ')
-        os.chmod(self.tmp_name, 0100)
+        os.chmod(self.tmp_name, 0o100)
         self.child.sendline(self.tmp_name)
         try:
             self.child.expect('Los permisos del archivo {} son: --x\r\n'.format(self.tmp_name))
@@ -55,27 +55,27 @@ class TestPractica2_1(unittest.TestCase):
 
     def test_read_permit(self):
         self.child.expect('Introduzca el nombre del fichero: ')
-        os.chmod(self.tmp_name, 0400)
+        os.chmod(self.tmp_name, 0o400)
         self.child.sendline(self.tmp_name)
         try:
             self.child.expect('Los permisos del archivo {} son: r--\r\n'.format(self.tmp_name))
         except:
             self.assertTrue(False, msg='Incorrect permit. Expected value: r--')
         self.assertTrue(True)
-    
+
     def test_read_write_permit(self):
         self.child.expect('Introduzca el nombre del fichero: ')
-        os.chmod(self.tmp_name, 0600)
+        os.chmod(self.tmp_name, 0o600)
         self.child.sendline(self.tmp_name)
         try:
             self.child.expect('Los permisos del archivo {} son: rw-'.format(self.tmp_name))
         except:
             self.assertTrue(False, msg='Incorrect permit. Expected value: rw-')
         self.assertTrue(True)
-    
+
     def test_read_write_exec_permit(self):
         self.child.expect('Introduzca el nombre del fichero: ')
-        os.chmod(self.tmp_name, 0700)
+        os.chmod(self.tmp_name, 0o700)
         self.child.sendline(self.tmp_name)
         try:
             self.child.expect('Los permisos del archivo {} son: rwx'.format(self.tmp_name))
