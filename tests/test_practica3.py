@@ -15,9 +15,15 @@ import unittest
 
 class TestPractica3(unittest.TestCase):
 
+    @classmethod
+    def setUpClass(cls):
+        """ Find script directory and store its name in a variable """
+        cls.my_dir=os.path.dirname(os.path.realpath(__file__))
+        cls.script_name=os.path.realpath('{}/../practica_3/practica_3.sh'.format(cls.my_dir))
+
     # clean before every test, just in case something goes wrong
     def setUp(self):
-        check_call(["/bin/bash", "./remove_possible_users.sh"])
+        check_call(["/bin/bash", "{}/../utils/remove_possible_users.sh".format(self.my_dir)])
 
     def tearDown(self):
         try:
@@ -26,7 +32,7 @@ class TestPractica3(unittest.TestCase):
             None
 
     def test_shebang(self):
-        with open('./practica_3.sh') as f:
+        with open(cls.script_name) as f:
             first_line = f.readline().rstrip('\r\n')
 
             pattern=re.compile('#!/usr/bin/env\s+bash')
@@ -74,7 +80,7 @@ class TestPractica3(unittest.TestCase):
         required_commands=set(['useradd', 'userdel', 'usermod', 'chpasswd', 'tar'])
         required_useradd_options=set(['-U',  '-k /etc/skel', '-K UID_MIN=1000', '-c'])
 
-        with open('./practica_3.sh') as f:
+        with open(self.script_name) as f:
             # flag for checking that at least one invocation to useradd includes all required options
             for full_line in f:
                 # remove spaces at beginning of line and end of lines
@@ -115,7 +121,7 @@ class TestPractica3(unittest.TestCase):
 
 
     def test_number_arguments(self):
-        self.child = pexpect.spawn('sudo /bin/bash ./practica_3.sh -a correct_user_list.txt extra_arg')
+        self.child = pexpect.spawn('sudo /bin/bash "{}" -a "{}/correct_user_list.txt" extra_arg'.format(self.script_name, self.my_dir))
         try:
             self.child.expect_exact('Numero incorrecto de parametros\r\n')
         except:
@@ -123,7 +129,7 @@ class TestPractica3(unittest.TestCase):
         self.assertTrue(True)
 
     def test_sudo(self):
-        self.child = pexpect.spawn('/bin/bash ./practica_3.sh -a correct_user_list.txt')
+        self.child = pexpect.spawn('/bin/bash "{}" -a "{}/correct_user_list.txt"'.format(self.script_name, self.my_dir))
         try:
             self.child.expect_exact('Este script necesita privilegios de administracion')
         except:
@@ -131,7 +137,7 @@ class TestPractica3(unittest.TestCase):
         self.assertTrue(True)
 
     def test_invalid_argument(self):
-        self.child = pexpect.spawn('sudo -- /bin/bash ./practica_3.sh -I correct_user_list.txt')
+        self.child = pexpect.spawn('sudo -- /bin/bash "{}" -I "{}/correct_user_list.txt'.format(self.script_name, self.my_dir))
         try:
             self.child.expect_exact('Opcion invalida')
         except:
@@ -149,7 +155,7 @@ class TestPractica3(unittest.TestCase):
         if os.path.isdir(backup_dir):
             check_call(["sudo", "rm", "-rf", '{}'.format(backup_dir)])
 
-        self.child = pexpect.spawn('sudo', ['--', '/bin/bash', './practica_3.sh', '-s', '/dev/null'])
+        self.child = pexpect.spawn('sudo', ['--', '/bin/bash', '"{}"'.format(self.script_name), '-s', '/dev/null'])
         try:
             self.child.expect(pexpect.EOF)
         except:
@@ -164,7 +170,7 @@ class TestPractica3(unittest.TestCase):
         """
 
         with open(os.devnull, 'w') as FNULL:
-            check_call(["sudo", "--", "/bin/bash", "./practica_3.sh", "-a", "./correct_user_list.txt"],
+            check_call(["sudo", "--", "/bin/bash", "{}".format(self.script_name), "-a", "{}/correct_user_list.txt".format(self.my_dir)],
                     stdout=FNULL, stderr=FNULL)
 
         with open('./correct_user_list.txt', 'r') as f:
@@ -191,9 +197,9 @@ class TestPractica3(unittest.TestCase):
                 self.child.close()
 
     def test_correct_user_list(self):
-        self.child = pexpect.spawn('sudo -- /bin/bash ./practica_3.sh -a ./correct_user_list.txt')
+        self.child = pexpect.spawn('sudo -- /bin/bash "{}" -a "{}/correct_user_list.txt"'.format(self.script_name, self.my_dir))
 
-        with open('./correct_user_list.txt', 'r') as f:
+        with open('{}/correct_user_list.txt'.format(src.my_dir), 'r') as f:
             for line in f:
                 user, pwd, name = [ w.rstrip(' \n').lstrip(' ') for w in line.split(',') ]
                 try:
@@ -209,7 +215,7 @@ class TestPractica3(unittest.TestCase):
 
 
     def test_root_user(self):
-        self.child = pexpect.spawn('sudo -- /bin/bash ./practica_3.sh -a incorrect_user_list_existing_root.txt')
+        self.child = pexpect.spawn('sudo -- /bin/bash "{}" -a "{}/incorrect_user_list_existing_root.txt"'.format(self.script_name, self.my_dir))
 
         try:
             self.child.expect_exact('El usuario root ya existe')
@@ -262,7 +268,7 @@ class TestPractica3(unittest.TestCase):
         tmp_name = self.create_fake_user_file(random_user_name, fake_home=True)
 
         # run the script
-        self.child = pexpect.spawn('sudo', ['--', '/bin/bash', './practica_3.sh', '-s', tmp_name])
+        self.child = pexpect.spawn('sudo', ['--', '/bin/bash', '"{}"'.format(self.script_name), '-s', tmp_name])
         try:
             self.child.expect(pexpect.EOF)
         except:
@@ -285,7 +291,7 @@ class TestPractica3(unittest.TestCase):
         tmp_name = self.create_fake_user_file(random_user_name)
 
         # run the script
-        self.child = pexpect.spawn('sudo', ['--', '/bin/bash', './practica_3.sh', '-s', tmp_name])
+        self.child = pexpect.spawn('sudo', ['--', '/bin/bash', '"{}"'.format(self.script_name), '-s', tmp_name])
         self.child.logfile = sys.stdout
         try:
             self.assertFalse(self.child.expect(pexpect.EOF))
@@ -310,7 +316,7 @@ class TestPractica3(unittest.TestCase):
 
         null_file=open(os.devnull, 'w')
 
-        self.child = pexpect.spawn('sudo', ['--', '/bin/bash', './practica_3.sh', '-a', tmp_name])
+        self.child = pexpect.spawn('sudo', ['--', '/bin/bash', '"{}"'.format(self.script_name), '-a', tmp_name])
 
         try:
             expected_string='El usuario {} ya existe'.format(random_user_name)

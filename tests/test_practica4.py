@@ -15,6 +15,12 @@ import unittest
 
 class TestPractica4(unittest.TestCase):
 
+    @classmethod
+    def setUpClass(cls):
+        """ Find script directory and store its name in a variable """
+        cls.my_dir=os.path.dirname(os.path.realpath(__file__))
+        cls.script_name=os.path.realpath('{}/../practica_4/practica_4.sh'.format(cls.my_dir))
+
 
     # clean before every test, just in case something goes wrong
     def setUp(self):
@@ -24,7 +30,7 @@ class TestPractica4(unittest.TestCase):
         pass
 
     def test_shebang(self):
-        with open('./practica_4.sh') as f:
+        with open(self.script_name) as f:
             first_line = f.readline().rstrip('\r\n')
 
             pattern=re.compile('#!/usr/bin/env\s+bash')

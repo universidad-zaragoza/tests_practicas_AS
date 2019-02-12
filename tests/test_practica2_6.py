@@ -13,6 +13,12 @@ import unittest
 
 class TestPractica2_6(unittest.TestCase):
 
+    @classmethod
+    def setUpClass(cls):
+        """ Find script directory and store its name in a variable """
+        cls.my_dir=os.path.dirname(os.path.realpath(__file__))
+        cls.script_name=os.path.realpath('{}/../practica_2/practica2_6.sh'.format(cls.my_dir))
+
     def setUp(self):
         self.home=os.getenv("HOME")
 
@@ -20,7 +26,7 @@ class TestPractica2_6(unittest.TestCase):
         """ Nothing to finish """
 
     def test_shebang(self):
-        with open('./practica2_6.sh') as f:
+        with open(self.script_name) as f:
             first_line = f.readline().rstrip('\r\n')
 
             pattern=re.compile('#!/usr/bin/env\s+bash')
@@ -76,7 +82,7 @@ class TestPractica2_6(unittest.TestCase):
         exec_files= [ f for f in os.listdir('./') if self.is_reg_exe(f) and not f.startswith('.') ]
 
         try:
-            self.child = pexpect.spawn('/bin/bash ./practica2_6.sh')
+            self.child = pexpect.spawn('/bin/bash "{}"'.format(self.script_name))
         except:
             self.assertTrue(False, msg='Error spanwing process')
 
@@ -131,7 +137,7 @@ class TestPractica2_6(unittest.TestCase):
         exec_files= [ f for f in os.listdir('./') if self.is_reg_exe(f) and not f.startswith('.') ]
 
         try:
-            self.child = pexpect.spawn('/bin/bash ./practica2_6.sh')
+            self.child = pexpect.spawn('/bin/bash "{}"'.format(self.script_name))
         except:
             self.assertTrue(False, msg='Error spanwing process')
 
@@ -162,7 +168,7 @@ class TestPractica2_6(unittest.TestCase):
 
         self.child.terminate(force=True)
 
-    @unittest.skip("Activar en curso 2018/2019")
+    # @unittest.skip("Activar en curso 2018/2019")
     def test_no_files_to_copy(self):
         """ This test creates a new empty directory and runs the script there
         """
@@ -183,7 +189,7 @@ class TestPractica2_6(unittest.TestCase):
         tmp_dir=mkdtemp(dir='./')
 
         try:
-            self.child = pexpect.spawn('/bin/bash ../practica2_6.sh', cwd=tmp_dir)
+            self.child = pexpect.spawn('/bin/bash "{}"'.format(self.script_name), cwd=tmp_dir)
         except:
             self.assertTrue(False, msg='Error spanwing process')
 
@@ -223,7 +229,7 @@ class TestPractica2_6(unittest.TestCase):
         exec_files= [ f for f in os.listdir('./') if self.is_reg_exe(f) and not f.startswith('.') ]
 
         try:
-            self.child = pexpect.spawn('/bin/bash ./practica2_6.sh')
+            self.child = pexpect.spawn('/bin/bash "{}"'.format(self.script_name))
         except:
             self.assertTrue(False, msg='Error spanwing process')
 

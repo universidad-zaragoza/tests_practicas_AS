@@ -11,6 +11,12 @@ import unittest
 
 class TestPractica2_2(unittest.TestCase):
 
+    @classmethod
+    def setUpClass(cls):
+        """ Find script directory and store its name in a variable """
+        cls.my_dir=os.path.dirname(os.path.realpath(__file__))
+        cls.script_name=os.path.realpath('{}/../practica_2/practica2_2.sh'.format(cls.my_dir))
+
     def setUp(self):
 
         # create temporal files and directories
@@ -29,7 +35,7 @@ class TestPractica2_2(unittest.TestCase):
             os.rmdir(dname)
 
     def test_shebang(self):
-        with open('./practica2_2.sh') as f:
+        with open(self.script_name) as f:
             first_line = f.readline().rstrip('\r\n')
 
             pattern=re.compile('#!/usr/bin/env\s+bash')
@@ -43,7 +49,8 @@ class TestPractica2_2(unittest.TestCase):
         # creation of the process every time because we have to change the
         # argument list
         try:
-            self.child = pexpect.spawn('/bin/bash ./practica2_2.sh "{}"'.format(self.tmp_files[0]))
+            self.child =\
+                pexpect.spawn('/bin/bash "{}" "{}"'.format(self.script_name, self.tmp_files[0]))
         except:
             self.assertTrue(False)
         self.assertTrue(True)
@@ -52,7 +59,7 @@ class TestPractica2_2(unittest.TestCase):
 
     def test_directory(self):
         try:
-            self.child = pexpect.spawn('/bin/bash ./practica2_2.sh "{}"'.format(self.tmp_dirs[0]))
+            self.child = pexpect.spawn('/bin/bash "{}" "{}"'.format(self.script_name, self.tmp_dirs[0]))
         except:
             self.assertTrue(False)
         try:
@@ -70,7 +77,7 @@ class TestPractica2_2(unittest.TestCase):
             fname=''.join(random.choice(string.ascii_letters + string.digits + ' ') for _ in range(16))
 
         try:
-            self.child = pexpect.spawn('/bin/bash ./practica2_2.sh "{}"'.format(fname))
+            self.child = pexpect.spawn('/bin/bash "{}" "{}"'.format(self.script_name, fname))
             self.child.expect('{} no es un fichero'.format(fname))
         except:
             self.assertTrue(False)
@@ -95,7 +102,7 @@ class TestPractica2_2(unittest.TestCase):
                     f.write(l)
 
         try:
-            self.child = pexpect.spawn('/bin/bash ./practica2_2.sh "{}" "{}" "{}"'.format(self.tmp_files[0], self.tmp_dirs[0], self.tmp_files[1]))
+            self.child = pexpect.spawn('/bin/bash "{}" "{}" "{}" "{}"'.format(self.script_name, self.tmp_files[0], self.tmp_dirs[0], self.tmp_files[1]))
         except:
             self.assertTrue(False)
 

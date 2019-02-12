@@ -12,6 +12,11 @@ import unittest
 
 class TestPractica2_3(unittest.TestCase):
 
+    @classmethod
+    def setUpClass(cls):
+        cls.my_dir=os.path.dirname(os.path.realpath(__file__))
+        cls.script_name=os.path.realpath('{}/../practica_2/practica2_3.sh'.format(cls.my_dir))
+
     def setUp(self):
 
         # create temporal files and directories
@@ -22,7 +27,7 @@ class TestPractica2_3(unittest.TestCase):
         os.unlink(self.tmp_name)
 
     def test_shebang(self):
-        with open('./practica2_3.sh') as f:
+        with open(self.script_name) as f:
             first_line = f.readline().rstrip('\r\n')
 
             pattern=re.compile('#!/usr/bin/env\s+bash')
@@ -36,7 +41,7 @@ class TestPractica2_3(unittest.TestCase):
         # creation of the process every time because we have to change the
         # argument list
         try:
-            self.child = pexpect.spawn('/bin/bash ./practica2_3.sh "{}"'.format(self.tmp_name))
+            self.child = pexpect.spawn('/bin/bash "{}" "{}"'.format(self.script_name, self.tmp_name))
         except:
             self.assertTrue(False)
         self.assertTrue(True)
@@ -49,7 +54,7 @@ class TestPractica2_3(unittest.TestCase):
             fname=''.join(random.choice(string.ascii_letters + string.digits + ' ') for _ in range(16))
 
         try:
-            self.child = pexpect.spawn('/bin/bash ./practica2_3.sh "{}"'.format(fname))
+            self.child = pexpect.spawn('/bin/bash "{}" "{}"'.format(self.script_name, fname))
             self.child.expect('{} no existe'.format(fname))
         except:
             self.assertTrue(False)
@@ -59,7 +64,7 @@ class TestPractica2_3(unittest.TestCase):
 
     def test_no_arguments(self):
         try:
-            self.child = pexpect.spawn('/bin/bash ./practica2_3.sh')
+            self.child = pexpect.spawn('/bin/bash "{}"'.format(self.script_name))
             self.child.expect('Sintaxis: practica2_3.sh <nombre_archivo>\r\n')
         except:
             self.assertTrue(False)
@@ -69,7 +74,7 @@ class TestPractica2_3(unittest.TestCase):
 
     def test_three_arguments(self):
         try:
-            self.child = pexpect.spawn('/bin/bash ./practica2_3.sh one two three')
+            self.child = pexpect.spawn('/bin/bash "{}" one two three'.format(self.script_name))
             self.child.expect('Sintaxis: practica2_3.sh <nombre_archivo>\r\n')
         except:
             self.assertTrue(False)
@@ -79,7 +84,7 @@ class TestPractica2_3(unittest.TestCase):
 
     def test_valid_file(self):
         try:
-            self.child = pexpect.spawn('/bin/bash ./practica2_3.sh "{}"'.format(self.tmp_name))
+            self.child = pexpect.spawn('/bin/bash "{}" "{}"'.format(self.script_name, self.tmp_name))
             self.child.expect('-[r|-][w|-]x[r|-][w|-][x|-][r|-][w|-][x|-]\r\n')
         except:
             self.assertTrue(False)

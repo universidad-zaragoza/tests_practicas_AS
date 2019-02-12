@@ -11,8 +11,13 @@ import unittest
 
 class TestPractica2_1(unittest.TestCase):
 
+    @classmethod
+    def setUpClass(cls):
+        cls.my_dir=os.path.dirname(os.path.realpath(__file__))
+        cls.script_name=os.path.realpath('{}/../practica_2/practica2_1.sh'.format(cls.my_dir))
+
     def setUp(self):
-        self.child = pexpect.spawn('/bin/bash ./practica2_1.sh')
+        self.child = pexpect.spawn('/bin/bash {}'.format(self.script_name))
         # self.child.logfile = sys.stdout
 
         # create a temporal file
@@ -25,7 +30,7 @@ class TestPractica2_1(unittest.TestCase):
         os.unlink(self.tmp_name)
 
     def test_shebang(self):
-        with open('./practica2_1.sh') as f:
+        with open(self.script_name) as f:
             first_line = f.readline().rstrip('\r\n')
 
             pattern=re.compile('#!/usr/bin/env\s+bash')

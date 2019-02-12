@@ -12,6 +12,12 @@ import unittest
 
 class TestPractica2_5(unittest.TestCase):
 
+    @classmethod
+    def setUpClass(cls):
+        """ Find script directory and store its name in a variable """
+        cls.my_dir=os.path.dirname(os.path.realpath(__file__))
+        cls.script_name=os.path.realpath('{}/../practica_2/practica2_5.sh'.format(cls.my_dir))
+
     def setUp(self):
         """ Nothing to setup """
 
@@ -19,7 +25,7 @@ class TestPractica2_5(unittest.TestCase):
         """ Nothing to finish """
 
     def test_shebang(self):
-        with open('./practica2_5.sh') as f:
+        with open(self.script_name) as f:
             first_line = f.readline().rstrip('\r\n')
 
             pattern=re.compile('#!/usr/bin/env\s+bash')
@@ -30,7 +36,7 @@ class TestPractica2_5(unittest.TestCase):
     def test_no_dir(self):
         invalid_dir_name=''.join([ random.choice(string.ascii_letters+string.digits+' ') for _ in range(128) ])
         try:
-            self.child = pexpect.spawn('/bin/bash ./practica2_5.sh')
+            self.child = pexpect.spawn('/bin/bash "{}"'.format(self.script_name))
             self.assertFalse(self.child.expect_exact('Introduzca el nombre de un directorio: '))
             self.child.sendline(invalid_dir_name)
             self.assertFalse(self.child.expect_exact('{} no es un directorio'.format(invalid_dir_name)))
@@ -44,7 +50,7 @@ class TestPractica2_5(unittest.TestCase):
         tmp_dir_name = mkdtemp(prefix=' with spaces ')
 
         try:
-            self.child = pexpect.spawn('/bin/bash ./practica2_5.sh')
+            self.child = pexpect.spawn('/bin/bash "{}"'.format(self.script_name))
             self.assertFalse(self.child.expect_exact('Introduzca el nombre de un directorio: '))
         except:
             self.assertTrue(False)
@@ -72,7 +78,7 @@ class TestPractica2_5(unittest.TestCase):
             mkstemp(dir=random.choice(list_dirs), prefix=' louis pouzin')
 
         try:
-            self.child = pexpect.spawn('/bin/bash ./practica2_5.sh')
+            self.child = pexpect.spawn('/bin/bash "{}"'.format(self.script_name))
             self.assertFalse(self.child.expect_exact('Introduzca el nombre de un directorio: '))
             self.child.sendline(tmp_dir_name)
         except:
