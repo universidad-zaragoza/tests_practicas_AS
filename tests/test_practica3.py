@@ -32,7 +32,7 @@ class TestPractica3(unittest.TestCase):
             None
 
     def test_shebang(self):
-        with open(cls.script_name) as f:
+        with open(self.script_name) as f:
             first_line = f.readline().rstrip('\r\n')
 
             pattern=re.compile('#!/usr/bin/env\s+bash')
@@ -155,7 +155,7 @@ class TestPractica3(unittest.TestCase):
         if os.path.isdir(backup_dir):
             check_call(["sudo", "rm", "-rf", '{}'.format(backup_dir)])
 
-        self.child = pexpect.spawn('sudo', ['--', '/bin/bash', '"{}"'.format(self.script_name), '-s', '/dev/null'])
+        self.child = pexpect.spawn('sudo', ['--', '/bin/bash', '{}'.format(self.script_name), '-s', '/dev/null'])
         try:
             self.child.expect(pexpect.EOF)
         except:
@@ -173,7 +173,7 @@ class TestPractica3(unittest.TestCase):
             check_call(["sudo", "--", "/bin/bash", "{}".format(self.script_name), "-a", "{}/correct_user_list.txt".format(self.my_dir)],
                     stdout=FNULL, stderr=FNULL)
 
-        with open('./correct_user_list.txt', 'r') as f:
+        with open('{}/correct_user_list.txt'.format(self.my_dir), 'r') as f:
             for line in f:
                 user, pwd, name = [ w.rstrip(' \n').lstrip(' ') for w in line.split(',') ]
 
@@ -199,7 +199,7 @@ class TestPractica3(unittest.TestCase):
     def test_correct_user_list(self):
         self.child = pexpect.spawn('sudo -- /bin/bash "{}" -a "{}/correct_user_list.txt"'.format(self.script_name, self.my_dir))
 
-        with open('{}/correct_user_list.txt'.format(src.my_dir), 'r') as f:
+        with open('{}/correct_user_list.txt'.format(self.my_dir), 'r') as f:
             for line in f:
                 user, pwd, name = [ w.rstrip(' \n').lstrip(' ') for w in line.split(',') ]
                 try:
@@ -268,7 +268,8 @@ class TestPractica3(unittest.TestCase):
         tmp_name = self.create_fake_user_file(random_user_name, fake_home=True)
 
         # run the script
-        self.child = pexpect.spawn('sudo', ['--', '/bin/bash', '"{}"'.format(self.script_name), '-s', tmp_name])
+        self.child = pexpect.spawn('sudo', ['--', '/bin/bash', '{}'.format(self.script_name), '-s', tmp_name])
+
         try:
             self.child.expect(pexpect.EOF)
         except:
@@ -291,7 +292,7 @@ class TestPractica3(unittest.TestCase):
         tmp_name = self.create_fake_user_file(random_user_name)
 
         # run the script
-        self.child = pexpect.spawn('sudo', ['--', '/bin/bash', '"{}"'.format(self.script_name), '-s', tmp_name])
+        self.child = pexpect.spawn('sudo', ['--', '/bin/bash', '{}'.format(self.script_name), '-s', tmp_name])
         self.child.logfile = sys.stdout
         try:
             self.assertFalse(self.child.expect(pexpect.EOF))
@@ -316,7 +317,7 @@ class TestPractica3(unittest.TestCase):
 
         null_file=open(os.devnull, 'w')
 
-        self.child = pexpect.spawn('sudo', ['--', '/bin/bash', '"{}"'.format(self.script_name), '-a', tmp_name])
+        self.child = pexpect.spawn('sudo', ['--', '/bin/bash', '{}'.format(self.script_name), '-a', tmp_name])
 
         try:
             expected_string='El usuario {} ya existe'.format(random_user_name)
