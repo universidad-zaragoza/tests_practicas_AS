@@ -183,7 +183,7 @@ class TestPractica3(unittest.TestCase):
             check_call(["sudo", "--", "/bin/bash", "{}".format(self.script_name), "-a", "{}/correct_user_list.txt".format(self.my_dir)],
                     stdout=FNULL, stderr=FNULL)
 
-        with open("{}/correct_user_list.txt".format(self.my_dir), 'r') as f:
+        with open('{}/correct_user_list.txt'.format(self.my_dir), 'r') as f:
             for line in f:
                 user, pwd, name = [ w.rstrip(' \n').lstrip(' ') for w in line.split(',') ]
 
@@ -279,6 +279,7 @@ class TestPractica3(unittest.TestCase):
 
         # run the script
         self.child = pexpect.spawn('sudo', ['--', '/bin/bash', '{}'.format(self.script_name), '-s', tmp_name])
+
         try:
             self.child.expect(pexpect.EOF)
         except:
@@ -302,7 +303,7 @@ class TestPractica3(unittest.TestCase):
 
         # run the script
         self.child = pexpect.spawn('sudo', ['--', '/bin/bash', '{}'.format(self.script_name), '-s', tmp_name])
-        #self.child.logfile = sys.stdout
+        self.child.logfile = sys.stdout
         try:
             self.assertFalse(self.child.expect(pexpect.EOF))
         except:
