@@ -49,7 +49,7 @@ class TestPractica3(unittest.TestCase):
                 if they exists:
                 -U
                 -k /etc/skel
-                -K UID_MIN=1000
+                -K UID_MIN=1815
                 -c
              """
 
@@ -77,7 +77,7 @@ class TestPractica3(unittest.TestCase):
 
             return required_options
 
-        required_commands=set(['useradd', 'userdel', 'chpasswd', 'tar']) # 'usermod' is not required, useradd is enough
+        required_commands=set(['useradd', 'userdel', 'usermod', 'chpasswd', 'tar'])
         required_useradd_options=set(['-U',  '-k /etc/skel', '-K UID_MIN=1815', '-c'])
 
         with open(self.script_name) as f:
@@ -107,7 +107,7 @@ class TestPractica3(unittest.TestCase):
                     words_in_line=words_in_line[:idx]
 
                 # verify the script does not include sudo
-                self.assertFalse('sudo ' in words_in_line,
+                self.assertFalse('sudo' in words_in_line,
                         msg='Line {} contains the sudo command'.format(l))
 
                 # only check if there are pending commands
@@ -303,7 +303,7 @@ class TestPractica3(unittest.TestCase):
 
         # run the script
         self.child = pexpect.spawn('sudo', ['--', '/bin/bash', '{}'.format(self.script_name), '-s', tmp_name])
-        self.child.logfile = sys.stdout
+        # self.child.logfile = sys.stdout
         try:
             self.assertFalse(self.child.expect(pexpect.EOF))
         except:
