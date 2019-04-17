@@ -72,9 +72,6 @@ class TestPractica3(unittest.TestCase):
                 if idx_k+1 < lenght:
                     required_options.discard('-K {}'.format(words_in_line[idx_k+1]))
 
-            if '-K' in words_in_line[idx:-1]:
-                idx_k=words_in_line.index('-K')
-
             return required_options
 
         required_commands=set(['useradd', 'userdel', 'usermod', 'chpasswd', 'tar'])
