@@ -79,7 +79,17 @@ class TestPractica3(unittest.TestCase):
 
         with open(self.script_name) as f:
             # flag for checking that at least one invocation to useradd includes all required options
+            buffer_line = ""
             for full_line in f:
+            
+                # add to buffer if multiline command
+                if full_line[-2:] == '\\\n':
+                  buffer_line += full_line[:-2]
+                  continue
+                else:
+                  full_line = buffer_line + full_line
+                  buffer_line = ""
+                  
                 # remove spaces at beginning of line and end of lines
                 l = full_line.lstrip().rstrip('\n')
 
@@ -176,7 +186,7 @@ class TestPractica3(unittest.TestCase):
 
                 self.child = pexpect.spawn('su {}'.format(user))
                 try:
-                    self.child.expect_exact('Password: ')
+                    self.child.expect_exact(['Password', 'Contraseña: '])
                 except:
                     self.assertTrue(False, msg='Unable to run su')
                 self.child.sendline(pwd)
@@ -290,7 +300,7 @@ class TestPractica3(unittest.TestCase):
 
         # run the script
         self.child = pexpect.spawn('sudo', ['--', '/bin/bash', '{}'.format(self.script_name), '-s', tmp_name])
-        self.child.logfile = sys.stdout
+        # self.child.logfile = sys.stdout
         try:
             self.assertFalse(self.child.expect(pexpect.EOF))
         except:
