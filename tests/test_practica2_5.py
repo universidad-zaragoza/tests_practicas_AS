@@ -67,15 +67,17 @@ class TestPractica2_5(unittest.TestCase):
 
 
     def test_regular_case(self):
-        # create a random number of directories
+        # create a random number of directories and files
         tmp_dir_name = mkdtemp(prefix=' with spaces ')
 
         n_dirs=random.randint(1, 16)
         n_files=random.randint(1, 256)
 
-        list_dirs= [ mkdtemp(dir=tmp_dir_name) for _ in range(n_dirs) ] + [ tmp_dir_name ]
+        for _ in range(n_dirs):
+            mkdtemp(dir=tmp_dir_name, prefix=' wiliam kahan')
+
         for _ in range(n_files):
-            mkstemp(dir=random.choice(list_dirs), prefix=' louis pouzin')
+            mkstemp(dir=tmp_dir_name, prefix=' louis pouzin')
 
         try:
             self.child = pexpect.spawn('/bin/bash "{}"'.format(self.script_name))
