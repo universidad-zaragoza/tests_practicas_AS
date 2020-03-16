@@ -34,7 +34,7 @@ function usage {
 function check_user_line {
     local line="$1"
 
-    echo "${line}" | grep -q '#[0-9]\{6\}, [A-Za-z][A-Za-z ]*, [A-Za-z][A-Za-z ]*, [MT], [1-5], [AB]'
+    echo "${line}" | grep -q '#[0-9]\{6\}, [ñA-Za-z][ñA-Za-z ]*, [ñA-Za-z][ñA-Za-z ]*, [MT], [1-5], [AB]'
     echo "$?"
 }
 
@@ -47,7 +47,7 @@ fi
 
 # check number of lines
 nlines=$(wc -l "$fname" | awk ' { print $1 } ')
-[ ${nlines} -gt 3 ] || usage
+[ ${nlines} -ge 3 ] || usage
 
 
 # check shebang
