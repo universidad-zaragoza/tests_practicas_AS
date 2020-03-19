@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 # WARNING!!!
 # this script should be run in a chrooted environment
@@ -60,6 +61,7 @@ class TestPractica3(unittest.TestCase):
                 required_options.remove('-U')
             # ToDo double-check that the name is correct
             if '-c' in words_in_line:
+                print(required_options)
                 required_options.remove('-c')
 
             if '-k' in words_in_line[idx:-1]:
@@ -81,7 +83,7 @@ class TestPractica3(unittest.TestCase):
             # flag for checking that at least one invocation to useradd includes all required options
             buffer_line = ""
             for full_line in f:
-            
+
                 # add to buffer if multiline command
                 if full_line[-2:] == '\\\n':
                   buffer_line += full_line[:-2]
@@ -89,7 +91,7 @@ class TestPractica3(unittest.TestCase):
                 else:
                   full_line = buffer_line + full_line
                   buffer_line = ""
-                  
+
                 # remove spaces at beginning of line and end of lines
                 l = full_line.lstrip().rstrip('\n')
 
