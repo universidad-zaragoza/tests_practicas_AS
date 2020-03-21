@@ -61,7 +61,6 @@ class TestPractica3(unittest.TestCase):
                 required_options.remove('-U')
             # ToDo double-check that the name is correct
             if '-c' in words_in_line:
-                print(required_options)
                 required_options.remove('-c')
 
             if '-k' in words_in_line[idx:-1]:
