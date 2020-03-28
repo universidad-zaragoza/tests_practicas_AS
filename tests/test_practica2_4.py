@@ -16,8 +16,10 @@ class TestPractica2_4(unittest.TestCase):
         """ Find script directory and store its name in a variable """
         cls.my_dir=os.path.dirname(os.path.realpath(__file__))
         cls.script_name=os.path.realpath('{}/../practica_2/practica2_4.sh'.format(cls.my_dir))
+        cls.timeout=5
 
     def setUp(self):
+        self.pass_test=True
         """ Nothing to setup """
 
     def tearDown(self):
@@ -36,12 +38,12 @@ class TestPractica2_4(unittest.TestCase):
         letra = random.choice(string.ascii_lowercase)
         try:
             self.child = pexpect.spawn('/bin/bash "{}"'.format(self.script_name))
-            self.child.expect('Introduzca una tecla: ')
+            self.child.expect('Introduzca una tecla: ', timeout=self.timeout)
             self.child.sendline(letra)
-            self.child.expect('{} es una letra'.format(letra))
+            self.child.expect('{} es una letra'.format(letra), timeout=self.timeout)
         except:
-            self.assertTrue(False)
-        self.assertTrue(True)
+            self.pass_test=False
+        self.assertTrue(self.pass_test)
 
         self.child.terminate(force=True)
 
@@ -51,10 +53,10 @@ class TestPractica2_4(unittest.TestCase):
             self.child = pexpect.spawn('/bin/bash "{}"'.format(self.script_name))
             self.child.expect('Introduzca una tecla: ')
             self.child.sendline(letra)
-            self.child.expect('{} es una letra'.format(letra))
+            self.child.expect('{} es una letra'.format(letra), timeout=self.timeout)
         except:
-            self.assertTrue(False)
-        self.assertTrue(True)
+            self.pass_test=False
+        self.assertTrue(self.pass_test)
 
         self.child.terminate(force=True)
 
@@ -62,25 +64,25 @@ class TestPractica2_4(unittest.TestCase):
         digit = random.choice(string.digits)
         try:
             self.child = pexpect.spawn('/bin/bash "{}"'.format(self.script_name))
-            self.child.expect('Introduzca una tecla: ')
+            self.child.expect('Introduzca una tecla: ', timeout=self.timeout)
             self.child.sendline(digit)
-            self.child.expect('{} es un numero'.format(digit))
+            self.child.expect('{} es un numero'.format(digit), timeout=self.timeout)
         except:
-            self.assertTrue(False)
-        self.assertTrue(True)
+            self.pass_test=False
+        self.assertTrue(self.pass_test)
 
         self.child.terminate(force=True)
 
     def test_special_char(self):
         try:
             self.child = pexpect.spawn('/bin/bash "{}"'.format(self.script_name))
-            self.child.expect('Introduzca una tecla: ')
+            self.child.expect('Introduzca una tecla: ', timeout=self.timeout)
             self.child.sendline('\t')
             # I think the output depends on the terminal, so we use a wildcard
-            self.child.expect('.* es un caracter especial')
+            self.child.expect('.* es un caracter especial', timeout=self.timeout)
         except:
-            self.assertTrue(False)
-        self.assertTrue(True)
+            self.pass_test=False
+        self.assertTrue(self.pass_test)
 
         self.child.terminate(force=True)
 
