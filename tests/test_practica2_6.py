@@ -18,9 +18,11 @@ class TestPractica2_6(unittest.TestCase):
         """ Find script directory and store its name in a variable """
         cls.my_dir=os.path.dirname(os.path.realpath(__file__))
         cls.script_name=os.path.realpath('{}/../practica_2/practica2_6.sh'.format(cls.my_dir))
+        cls.home=os.getenv("HOME")
+        cls.timeout=5
 
     def setUp(self):
-        self.home=os.getenv("HOME")
+        self.pass_test=True
 
     def tearDown(self):
         """ Nothing to finish """
@@ -84,12 +86,14 @@ class TestPractica2_6(unittest.TestCase):
         try:
             self.child = pexpect.spawn('/bin/bash "{}"'.format(self.script_name))
         except:
-            self.assertTrue(False, msg='Error spanwing process')
+            self.pass_test=False
+        self.assertTrue(self.pass_test, msg='Error spanwing process')
 
         try:
-            self.child.expect(pexpect.EOF)
+            self.child.expect(pexpect.EOF, timeout=self.timeout)
         except:
-            self.assertTrue(False, msg='Error expecing EOF')
+            self.pass_test=False
+        self.assertTrue(self.pass_test, msg='Error expecing EOF')
 
         # insert all non-empty lines in a list
         output_lines = [ line for line in self.child.before.splitlines() if line ]
@@ -139,12 +143,14 @@ class TestPractica2_6(unittest.TestCase):
         try:
             self.child = pexpect.spawn('/bin/bash "{}"'.format(self.script_name))
         except:
-            self.assertTrue(False, msg='Error spanwing process')
+            self.pass_test=False
+        self.assertTrue(self.pass_test, msg='Error spanwing process')
 
         try:
-            self.child.expect(pexpect.EOF)
+            self.child.expect(pexpect.EOF, timeout=self.timeout)
         except:
-            self.assertTrue(False, msg='Error expecing EOF')
+            self.pass_test=False
+        self.assertTrue(self.pass_test, msg='Error expecing EOF')
 
         # insert all non-empty lines in a list
         output_lines = [ line for line in self.child.before.splitlines() if line ]
@@ -191,12 +197,14 @@ class TestPractica2_6(unittest.TestCase):
         try:
             self.child = pexpect.spawn('/bin/bash "{}"'.format(self.script_name), cwd=tmp_dir)
         except:
-            self.assertTrue(False, msg='Error spanwing process')
+            self.pass_test=False
+        self.assertTrue(self.pass_test, msg='Error spanwing process')
 
         try:
-            self.child.expect(pexpect.EOF)
+            self.child.expect(pexpect.EOF, timeout=self.timeout)
         except:
-            self.assertTrue(False, msg='Error expecing EOF')
+            self.pass_test=False
+        self.assertTrue(self.pass_test, msg='Error expecing EOF')
 
         # insert all non-empty lines in a list
         output_lines = [ line for line in self.child.before.splitlines() if line ]
@@ -231,12 +239,14 @@ class TestPractica2_6(unittest.TestCase):
         try:
             self.child = pexpect.spawn('/bin/bash "{}"'.format(self.script_name))
         except:
-            self.assertTrue(False, msg='Error spanwing process')
+            self.pass_test=False
+        self.assertTrue(self.pass_test, msg='Error spanwing process')
 
         try:
-            self.child.expect(pexpect.EOF)
+            self.child.expect(pexpect.EOF, timeout=self.timeout)
         except:
-            self.assertTrue(False, msg='Error expecing EOF')
+            self.pass_test=False
+        self.assertTrue(self.pass_test, msg='Error expecing EOF')
 
         # insert all non-empty lines in a list
         output_lines = [ line for line in self.child.before.splitlines() if line ]
