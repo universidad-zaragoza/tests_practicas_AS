@@ -15,9 +15,11 @@ class TestPractica2_1(unittest.TestCase):
     def setUpClass(cls):
         cls.my_dir=os.path.dirname(os.path.realpath(__file__))
         cls.script_name=os.path.realpath('{}/../practica_2/practica2_1.sh'.format(cls.my_dir))
+        cls.timeout=5
 
     def setUp(self):
         self.child = pexpect.spawn('/bin/bash {}'.format(self.script_name))
+        self.pass_test = True
         # self.child.logfile = sys.stdout
 
         # create a temporal file
@@ -39,44 +41,44 @@ class TestPractica2_1(unittest.TestCase):
                     (pattern.match(first_line) != None), msg='Invalid shebang')
 
     def test_no_permit(self):
-        self.child.expect('Introduzca el nombre del fichero: ')
+        self.child.expect('Introduzca el nombre del fichero: ', timeout=self.timeout)
         os.chmod(self.tmp_name, 0o000)
         self.child.sendline(self.tmp_name)
         try:
-            self.child.expect('Los permisos del archivo {} son: ---\r\n'.format(self.tmp_name))
+            self.child.expect('Los permisos del archivo {} son: ---\r\n'.format(self.tmp_name), timeout=self.timeout)
         except:
-            self.assertTrue(False, msg='Incorrect permit. Expected value: ---')
-        self.assertTrue(True)
+            self.pass_test = False
+        self.assertTrue(self.pass_test, msg='Incorrect permit. Expected value: ---')
 
     def test_exec_permit(self):
-        self.child.expect('Introduzca el nombre del fichero: ')
+        self.child.expect('Introduzca el nombre del fichero: ', timeout=self.timeout)
         os.chmod(self.tmp_name, 0o100)
         self.child.sendline(self.tmp_name)
         try:
-            self.child.expect('Los permisos del archivo {} son: --x\r\n'.format(self.tmp_name))
+            self.child.expect('Los permisos del archivo {} son: --x\r\n'.format(self.tmp_name), timeout=self.timeout)
         except:
-            self.assertTrue(False, msg='Incorrect permit. Expected value: --x')
-        self.assertTrue(True)
+            self.pass_test = False
+        self.assertTrue(self.pass_test, msg='Incorrect permit. Expected value: --x')
 
     def test_read_permit(self):
-        self.child.expect('Introduzca el nombre del fichero: ')
+        self.child.expect('Introduzca el nombre del fichero: ', timeout=self.timeout)
         os.chmod(self.tmp_name, 0o400)
         self.child.sendline(self.tmp_name)
         try:
-            self.child.expect('Los permisos del archivo {} son: r--\r\n'.format(self.tmp_name))
+            self.child.expect('Los permisos del archivo {} son: r--\r\n'.format(self.tmp_name), timeout=self.timeout)
         except:
-            self.assertTrue(False, msg='Incorrect permit. Expected value: r--')
-        self.assertTrue(True)
+            self.pass_test=False
+        self.assertTrue(self.pass_test, msg='Incorrect permit. Expected value: r--')
 
     def test_read_write_permit(self):
-        self.child.expect('Introduzca el nombre del fichero: ')
+        self.child.expect('Introduzca el nombre del fichero: ', timeout=self.timeout)
         os.chmod(self.tmp_name, 0o600)
         self.child.sendline(self.tmp_name)
         try:
-            self.child.expect('Los permisos del archivo {} son: rw-'.format(self.tmp_name))
+            self.child.expect('Los permisos del archivo {} son: rw-'.format(self.tmp_name), timeout=self.timeout)
         except:
-            self.assertTrue(False, msg='Incorrect permit. Expected value: rw-')
-        self.assertTrue(True)
+            self.pass_test=False
+        self.assertTrue(self.pass_test, msg='Incorrect permit. Expected value: rw-')
 
     def test_read_write_exec_permit(self):
         self.child.expect('Introduzca el nombre del fichero: ')
@@ -85,8 +87,8 @@ class TestPractica2_1(unittest.TestCase):
         try:
             self.child.expect('Los permisos del archivo {} son: rwx'.format(self.tmp_name))
         except:
-            self.assertTrue(False, msg='Incorrect permit. Expected value: rwx')
-        self.assertTrue(True)
+            self.pass_test=False
+        self.assertTrue(self.pass_test, msg='Incorrect permit. Expected value: rwx')
 
     def test_read_invalid_filename(self):
         fname=''.join(random.choice(string.ascii_letters+string.digits) for _ in range(16))
@@ -94,13 +96,12 @@ class TestPractica2_1(unittest.TestCase):
             fname=''.join(random.choice(string.ascii_letters+string.digits) for _ in range(16))
 
         try:
-            self.child.expect('Introduzca el nombre del fichero: ')
+            self.child.expect('Introduzca el nombre del fichero: ', timeout=self.timeout)
             self.child.sendline(fname)
-            self.child.expect('{} no existe'.format(fname))
+            self.child.expect('{} no existe'.format(fname), timeout=self.timeout)
         except:
-            self.assertTrue(False, msg='Invalid output. Expected output: {} no existe'.format(fname))
-        self.assertTrue(True)
-
+            self.pass_test=False
+        self.assertTrue(self.pass_test, msg='Invalid output. Expected output: {} no existe'.format(fname))
 
 if __name__ == "__main__":
     unittest.main()
