@@ -17,14 +17,15 @@ import unittest
 class TestPractica3(unittest.TestCase):
 
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(self):
         """ Find script directory and store its name in a variable """
-        cls.my_dir=os.path.dirname(os.path.realpath(__file__))
-        cls.script_name=os.path.realpath('{}/../practica_3/practica_3.sh'.format(cls.my_dir))
+        self.my_dir=os.path.dirname(os.path.realpath(__file__))
+        self.script_name=os.path.realpath('{}/../practica_3/practica_3.sh'.format(self.my_dir))
 
     # clean before every test, just in case something goes wrong
     def setUp(self):
         check_call(["/bin/bash", "{}/../utils/remove_possible_users.sh".format(self.my_dir)])
+        self.pass_test=True
 
     def tearDown(self):
         try:
@@ -133,16 +134,16 @@ class TestPractica3(unittest.TestCase):
         try:
             self.child.expect_exact('Numero incorrecto de parametros\r\n')
         except:
-            self.assertTrue(False)
-        self.assertTrue(True)
+            self.pass_test=False
+        self.assertTrue(self.pass_test)
 
     def test_sudo(self):
         self.child = pexpect.spawn('/bin/bash "{}" -a "{}/correct_user_list.txt"'.format(self.script_name, self.my_dir))
         try:
             self.child.expect_exact('Este script necesita privilegios de administracion')
         except:
-            self.assertTrue(False)
-        self.assertTrue(True)
+            self.pass_test=False
+        self.assertTrue(self.pass_test)
 
     def test_invalid_argument(self):
         self.child = pexpect.spawn('sudo -- /bin/bash "{}" -I "{}/correct_user_list.txt'.format(self.script_name, self.my_dir))
@@ -223,17 +224,25 @@ class TestPractica3(unittest.TestCase):
 
 
     def test_root_user(self):
-        self.child = pexpect.spawn('sudo -- /bin/bash "{}" -a "{}/incorrect_user_list_existing_root.txt"'.format(self.script_name, self.my_dir))
+        """ Test whether the root user already exists
+        """
+        child = pexpect.spawn('sudo -- /bin/bash "{}" -a "{}/incorrect_user_list_existing_root.txt"'.format(self.script_name, self.my_dir))
+        expected_msg='El usuario root ya existe'
+        fail_msg=''
 
         try:
-            self.child.expect_exact('El usuario root ya existe')
+            child.expect_exact(expected_msg)
         except:
-            self.assertTrue(False)
+            self.pass_test=False
+            fail_msg='Expected: {}\nFound: {}'.format(expected_msg, child.before)
 
-        try:
-            self.assertFalse(self.child.expect(pexpect.EOF))
-        except:
-            self.assertTrue(False)
+        if self.pass_test == True:
+            try:
+                child.expect(pexpect.EOF)
+            except:
+                self.pass_test=False
+
+        self.assertTrue(self.pass_test, msg=fail_msg)
 
     def get_new_user(self):
         """ This helper function returns a valid name for a new user
@@ -276,10 +285,10 @@ class TestPractica3(unittest.TestCase):
         tmp_name = self.create_fake_user_file(random_user_name, fake_home=True)
 
         # run the script
-        self.child = pexpect.spawn('sudo', ['--', '/bin/bash', '{}'.format(self.script_name), '-s', tmp_name])
+        child = pexpect.spawn('sudo', ['--', '/bin/bash', '{}'.format(self.script_name), '-s', tmp_name])
 
         try:
-            self.child.expect(pexpect.EOF)
+            child.expect(pexpect.EOF)
         except:
             os.unlink(tmp_name)
             self.assertTrue(False)
@@ -300,10 +309,10 @@ class TestPractica3(unittest.TestCase):
         tmp_name = self.create_fake_user_file(random_user_name)
 
         # run the script
-        self.child = pexpect.spawn('sudo', ['--', '/bin/bash', '{}'.format(self.script_name), '-s', tmp_name])
+        child = pexpect.spawn('sudo', ['--', '/bin/bash', '{}'.format(self.script_name), '-s', tmp_name])
         # self.child.logfile = sys.stdout
         try:
-            self.assertFalse(self.child.expect(pexpect.EOF))
+            self.assertFalse(child.expect(pexpect.EOF))
         except:
             os.unlink(tmp_name)
             self.assertTrue(False)
@@ -325,28 +334,30 @@ class TestPractica3(unittest.TestCase):
 
         null_file=open(os.devnull, 'w')
 
-        self.child = pexpect.spawn('sudo', ['--', '/bin/bash', '{}'.format(self.script_name), '-a', tmp_name])
+        child = pexpect.spawn('sudo', ['--', '/bin/bash', '{}'.format(self.script_name), '-a', tmp_name])
 
+        expected_string='El usuario {} ya existe'.format(random_user_name)
+        fail_msg=""
         try:
-            expected_string='El usuario {} ya existe'.format(random_user_name)
-            self.child.expect_exact(expected_string)
+            child.expect_exact(expected_string)
         except:
-            # ensure the newly created user is deleted
-            check_call(["sudo", "userdel", "-r", "-f", "{}".format(random_user_name)],
-                    stdout=null_file, stderr=null_file)
-            self.assertTrue(False, msg='Expected: {}\nFound: {}'.format(expected_string, self.child.before))
-            os.unlink(tmp_name)
-            null_file.close()
+            self.pass_test=False
+            fail_msg='Expected: {}\nFound: {}'.format(expected_string, child.before)
 
-        try:
-            self.assertFalse(self.child.expect(pexpect.EOF))
-        except:
-            self.assertTrue(False)
+        if self.pass_test == True:
+            try:
+                self.assertFalse(child.expect(pexpect.EOF))
+            except:
+                self.pass_test=False
+                fail_msg='End of file not found.\nLast characters: {}'.format(child.before)
 
+        # ensure the newly created user is deleted
         check_call(["sudo", "userdel", "-r", "-f", "{}".format(random_user_name)],
-                    stdout=null_file, stderr=null_file)
+                stdout=null_file, stderr=null_file)
         os.unlink(tmp_name)
         null_file.close()
+
+        self.assertTrue(self.pass_test,msg=fail_msg)
 
 if __name__ == "__main__":
     unittest.main()
