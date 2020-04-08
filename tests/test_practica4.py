@@ -16,15 +16,16 @@ import unittest
 class TestPractica4(unittest.TestCase):
 
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(self):
         """ Find script directory and store its name in a variable """
-        cls.my_dir=os.path.dirname(os.path.realpath(__file__))
-        cls.script_name=os.path.realpath('{}/../practica_4/practica_4.sh'.format(cls.my_dir))
+        self.my_dir=os.path.dirname(os.path.realpath(__file__))
+        self.script_name=os.path.realpath('{}/../practica_4/practica_4.sh'.format(self.my_dir))
+        self.IPs = ['192.168.56.2', '192.168.56.3']
 
 
     # clean before every test, just in case something goes wrong
     def setUp(self):
-        self.IPs = ['192.168.56.2', '192.168.56.3']
+        self.pass_test=True
 
     def tearDown(self):
         pass
@@ -51,9 +52,8 @@ class TestPractica4(unittest.TestCase):
                 self.assertTrue(s.prompt())
                 s.logout()
             except pxssh.ExceptionPxssh as e:
-                print('Login to {} failed!, error: {}'.format(ip, e))
-                self.assertTrue(False)
-        self.assertTrue(True)
+                self.pass_test=False
+            self.assertTrue(self.pass_test, msg='Login to {} failed!, error: {}'.format(ip, e))
 
     def test_correct_sudo_config(self):
         """ Read sudo config file and check if root login is disabled
@@ -73,17 +73,32 @@ class TestPractica4(unittest.TestCase):
                 self.assertTrue(pattern.match(line_to_match) != None, "Error in machine {}".format(ip))
                 s.logout()
             except pxssh.ExceptionPxssh as e:
-                self.assertTrue(False)
-                print(s.before)
-                print('Sudo verification or login to {} failed!, error: {}'.format(ip, e))
+                self.pass_test=False
+            self.assertTrue(self.pass_test,
+                    msg='Sudo verification or login to {} failed!, error: {}, {}'.format(ip, e,s.before))
 
-        self.assertTrue(True)
+    def test_try_root_login(self):
+        """ Try to login with root account
+        """
 
+        pxssh_msg=''
+        login_msg=''
+        for ip in self.IPs:
+            valid_login=True
+            try:
+                s=pxssh.pxssh()
+            except pxssh.ExceptionPxssh as e:
+                self.pass_test=False
+                pxssh_msg='pxssh {}, error: {}, {}'.format(ip, e, s.before)
 
-    # def test_no_root
-    # find PermitRootLogin no in /etc/sshd_config
+            try:
+                s.login(ip, "root", "toor",login_timeout=3)
+            except pxssh.ExceptionPxssh as e:
+                valid_login=False
+                login_msg='Able to login with root to {}, error: {}, {}'.format(ip, e, s.before)
 
-    # def test_try_root_ssh
+            self.assertTrue(self.pass_test, msg=pxssh_msg)
+            self.assertFalse(valid_login, msg=login_msg)
 
 if __name__ == "__main__":
     unittest.main()
