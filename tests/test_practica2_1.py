@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import os
 import pexpect
@@ -18,7 +18,7 @@ class TestPractica2_1(unittest.TestCase):
         cls.timeout=5
 
     def setUp(self):
-        self.child = pexpect.spawn('/bin/bash {}'.format(self.script_name))
+        self.child = pexpect.spawn('/bin/bash {}'.format(self.script_name), encoding='utf-8')
         self.pass_test = True
         # self.child.logfile = sys.stdout
 
