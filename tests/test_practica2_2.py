@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import os
 import pexpect
@@ -50,7 +50,7 @@ class TestPractica2_2(unittest.TestCase):
         # argument list
         try:
             self.child =\
-                pexpect.spawn('/bin/bash "{}" "{}"'.format(self.script_name, self.tmp_files[0]))
+                pexpect.spawn('/bin/bash "{}" "{}"'.format(self.script_name, self.tmp_files[0]), encoding='utf-8')
         except:
             self.assertTrue(False)
         self.assertTrue(True)
@@ -59,7 +59,7 @@ class TestPractica2_2(unittest.TestCase):
 
     def test_directory(self):
         try:
-            self.child = pexpect.spawn('/bin/bash "{}" "{}"'.format(self.script_name, self.tmp_dirs[0]))
+            self.child = pexpect.spawn('/bin/bash "{}" "{}"'.format(self.script_name, self.tmp_dirs[0]), encoding='utf-8')
         except:
             self.assertTrue(False)
         try:
@@ -77,7 +77,7 @@ class TestPractica2_2(unittest.TestCase):
             fname=''.join(random.choice(string.ascii_letters + string.digits + ' ') for _ in range(16))
 
         try:
-            self.child = pexpect.spawn('/bin/bash "{}" "{}"'.format(self.script_name, fname))
+            self.child = pexpect.spawn('/bin/bash "{}" "{}"'.format(self.script_name, fname), encoding='utf-8')
             self.child.expect('{} no es un fichero'.format(fname))
         except:
             self.assertTrue(False)
@@ -102,7 +102,7 @@ class TestPractica2_2(unittest.TestCase):
                     f.write(l)
 
         try:
-            self.child = pexpect.spawn('/bin/bash "{}" "{}" "{}" "{}"'.format(self.script_name, self.tmp_files[0], self.tmp_dirs[0], self.tmp_files[1]))
+            self.child = pexpect.spawn('/bin/bash "{}" "{}" "{}" "{}"'.format(self.script_name, self.tmp_files[0], self.tmp_dirs[0], self.tmp_files[1]), encoding='utf-8')
         except:
             self.assertTrue(False)
 
@@ -120,7 +120,6 @@ class TestPractica2_2(unittest.TestCase):
         self.assertTrue(True)
 
         self.child.terminate(force=True)
-
 
 if __name__ == "__main__":
     unittest.main()
