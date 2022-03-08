@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import os
 import pexpect
@@ -41,7 +41,7 @@ class TestPractica2_3(unittest.TestCase):
         # creation of the process every time because we have to change the
         # argument list
         try:
-            self.child = pexpect.spawn('/bin/bash "{}" "{}"'.format(self.script_name, self.tmp_name))
+            self.child = pexpect.spawn('/bin/bash "{}" "{}"'.format(self.script_name, self.tmp_name), encoding='utf-8')
         except:
             self.assertTrue(False)
         self.assertTrue(True)
@@ -54,7 +54,7 @@ class TestPractica2_3(unittest.TestCase):
             fname=''.join(random.choice(string.ascii_letters + string.digits + ' ') for _ in range(16))
 
         try:
-            self.child = pexpect.spawn('/bin/bash "{}" "{}"'.format(self.script_name, fname))
+            self.child = pexpect.spawn('/bin/bash "{}" "{}"'.format(self.script_name, fname), encoding='utf-8')
             self.child.expect('{} no existe'.format(fname))
         except:
             self.assertTrue(False)
@@ -64,7 +64,7 @@ class TestPractica2_3(unittest.TestCase):
 
     def test_no_arguments(self):
         try:
-            self.child = pexpect.spawn('/bin/bash "{}"'.format(self.script_name))
+            self.child = pexpect.spawn('/bin/bash "{}"'.format(self.script_name), encoding='utf-8')
             self.child.expect('Sintaxis: practica2_3.sh <nombre_archivo>\r\n')
         except:
             self.assertTrue(False)
@@ -74,7 +74,7 @@ class TestPractica2_3(unittest.TestCase):
 
     def test_three_arguments(self):
         try:
-            self.child = pexpect.spawn('/bin/bash "{}" one two three'.format(self.script_name))
+            self.child = pexpect.spawn('/bin/bash "{}" one two three'.format(self.script_name), encoding='utf-8')
             self.child.expect('Sintaxis: practica2_3.sh <nombre_archivo>\r\n')
         except:
             self.assertTrue(False)
@@ -84,7 +84,7 @@ class TestPractica2_3(unittest.TestCase):
 
     def test_valid_file(self):
         try:
-            self.child = pexpect.spawn('/bin/bash "{}" "{}"'.format(self.script_name, self.tmp_name))
+            self.child = pexpect.spawn('/bin/bash "{}" "{}"'.format(self.script_name, self.tmp_name), encoding='utf-8')
             self.child.expect('-[r|-][w|-]x[r|-][w|-][x|-][r|-][w|-][x|-]\r\n')
         except:
             self.assertTrue(False)
