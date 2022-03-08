@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import os
 import pexpect
@@ -36,7 +36,7 @@ class TestPractica2_5(unittest.TestCase):
     def test_no_dir(self):
         invalid_dir_name=''.join([ random.choice(string.ascii_letters+string.digits+' ') for _ in range(128) ])
         try:
-            self.child = pexpect.spawn('/bin/bash "{}"'.format(self.script_name))
+            self.child = pexpect.spawn('/bin/bash "{}"'.format(self.script_name), encoding='utf-8')
             self.assertFalse(self.child.expect_exact('Introduzca el nombre de un directorio: '))
             self.child.sendline(invalid_dir_name)
             self.assertFalse(self.child.expect_exact('{} no es un directorio'.format(invalid_dir_name)))
@@ -50,7 +50,7 @@ class TestPractica2_5(unittest.TestCase):
         tmp_dir_name = mkdtemp(prefix=' with spaces ')
 
         try:
-            self.child = pexpect.spawn('/bin/bash "{}"'.format(self.script_name))
+            self.child = pexpect.spawn('/bin/bash "{}"'.format(self.script_name), encoding='utf-8')
             self.assertFalse(self.child.expect_exact('Introduzca el nombre de un directorio: '))
         except:
             self.assertTrue(False)
@@ -64,7 +64,6 @@ class TestPractica2_5(unittest.TestCase):
 
         os.rmdir(tmp_dir_name)
         self.child.terminate(force=True)
-
 
     def test_regular_case(self):
         # create a random number of directories and files
@@ -80,7 +79,7 @@ class TestPractica2_5(unittest.TestCase):
             mkstemp(dir=tmp_dir_name, prefix=' louis pouzin')
 
         try:
-            self.child = pexpect.spawn('/bin/bash "{}"'.format(self.script_name))
+            self.child = pexpect.spawn('/bin/bash "{}"'.format(self.script_name), encoding='utf-8')
             self.assertFalse(self.child.expect_exact('Introduzca el nombre de un directorio: '))
             self.child.sendline(tmp_dir_name)
         except:
@@ -101,7 +100,6 @@ class TestPractica2_5(unittest.TestCase):
         # after the execution has completed check the output
         output_lines = [ line for line in self.child.before.splitlines() if line ]
         self.assertEqual(len(output_lines), 1, msg='Invalid number of output lines')
-
         expected_line = 'El numero de ficheros y directorios en {} es de {} y {}, respectivamente'.format(tmp_dir_name, n_files, n_dirs)
         self.assertEqual(output_lines[0], expected_line, msg='Invalid output line.\n' \
                 'Expected: ' + expected_line + '\n' \
