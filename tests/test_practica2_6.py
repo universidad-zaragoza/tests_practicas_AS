@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import os
 import pexpect
@@ -84,7 +84,7 @@ class TestPractica2_6(unittest.TestCase):
         exec_files= [ f for f in os.listdir('./') if self.is_reg_exe(f) and not f.startswith('.') ]
 
         try:
-            self.child = pexpect.spawn('/bin/bash "{}"'.format(self.script_name))
+            self.child = pexpect.spawn('/bin/bash "{}"'.format(self.script_name), encoding='utf-8')
         except:
             self.pass_test=False
         self.assertTrue(self.pass_test, msg='Error spanwing process')
@@ -131,7 +131,6 @@ class TestPractica2_6(unittest.TestCase):
             # directory creation
             os.mkdir(bin_dir)
 
-
         # create a subdirectory in the current directory
         tmp_dir=mkdtemp(prefix=' with spaces ', dir='./')
         # ensure executable mode
@@ -141,7 +140,7 @@ class TestPractica2_6(unittest.TestCase):
         exec_files= [ f for f in os.listdir('./') if self.is_reg_exe(f) and not f.startswith('.') ]
 
         try:
-            self.child = pexpect.spawn('/bin/bash "{}"'.format(self.script_name))
+            self.child = pexpect.spawn('/bin/bash "{}"'.format(self.script_name), encoding='utf-8')
         except:
             self.pass_test=False
         self.assertTrue(self.pass_test, msg='Error spanwing process')
@@ -195,7 +194,7 @@ class TestPractica2_6(unittest.TestCase):
         tmp_dir=mkdtemp(dir='./')
 
         try:
-            self.child = pexpect.spawn('/bin/bash "{}"'.format(self.script_name), cwd=tmp_dir)
+            self.child = pexpect.spawn('/bin/bash "{}"'.format(self.script_name), cwd=tmp_dir, encoding='utf-8')
         except:
             self.pass_test=False
         self.assertTrue(self.pass_test, msg='Error spanwing process')
@@ -222,7 +221,6 @@ class TestPractica2_6(unittest.TestCase):
 
         rmtree(tmp_dir)
 
-
     def test_dir_creation(self):
         """ This test forces the creation of the destination directory
         """
@@ -237,7 +235,7 @@ class TestPractica2_6(unittest.TestCase):
         exec_files= [ f for f in os.listdir('./') if self.is_reg_exe(f) and not f.startswith('.') ]
 
         try:
-            self.child = pexpect.spawn('/bin/bash "{}"'.format(self.script_name))
+            self.child = pexpect.spawn('/bin/bash "{}"'.format(self.script_name), encoding='utf-8')
         except:
             self.pass_test=False
         self.assertTrue(self.pass_test, msg='Error spanwing process')
