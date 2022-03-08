@@ -6,12 +6,12 @@ grado de Ingeniería en Informática de la Universidad de Zaragoza.
 
 ## Requerimientos
 
-Los tests requieren de un interprete de python versión 2.7 y de la biblioteca
+Los tests requieren de un interprete de python versión 3 y de la biblioteca
 [pexpect](https://pexpect.readthedocs.io/en/stable/).
 
-Python 2.7 se puede instalar ejecutando el comando:
+Python 3 se puede instalar ejecutando el comando:
 
-    as@as0:~/sudo apt install python
+    as@as0:~/sudo apt install python3 python3-pip
 
 Pexpect se puede instalar con [pip](https://pypi.org/project/pip/) ejecutando el comando:
 
