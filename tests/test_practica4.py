@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # WARNING!!!
 # this script should be run in a chrooted environment
@@ -18,13 +18,13 @@ class TestPractica4(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """ Find script directory and store its name in a variable """
+
         cls.my_dir=os.path.dirname(os.path.realpath(__file__))
         cls.script_name=os.path.realpath('{}/../practica_4/practica_4.sh'.format(cls.my_dir))
 
-
     # clean before every test, just in case something goes wrong
     def setUp(self):
-        self.IPs = ['192.168.56.2', '192.168.56.3']
+        self.IPs = ['192.168.56.11', '192.168.56.12']
 
     def tearDown(self):
         pass
@@ -41,11 +41,11 @@ class TestPractica4(unittest.TestCase):
     def test_connectivity(self):
         """ Check whether the expected nodes are alive
         """
-
         for ip in self.IPs:
             try:
-                s=pxssh.pxssh(options={"PasswordAuthentication" : "no"})
-                s.login(ip, "as", ssh_key=os.path.expanduser("~/.ssh/id_as_ed25519"))
+                s=pxssh.pxssh(options={"PasswordAuthentication" : "no"}, encoding="utf-8")
+                #s.login(ip, "as", ssh_key="~/.ssh/id_as_ed25519")
+                s.login(ip, "as", ssh_key="/home/as/.ssh/id_as_ed25519")
                 # send inocuous command
                 s.sendline('true')
                 self.assertTrue(s.prompt())
@@ -55,22 +55,24 @@ class TestPractica4(unittest.TestCase):
                 self.assertTrue(False)
         self.assertTrue(True)
 
-    def test_correct_sudo_config(self):
-        """ Read sudo config file and check if root login is disabled
+    def test_no_root(self):
+        """ find PermitRootLogin no in /etc/sshd_config
         """
-
-        pattern = re.compile('^\s*PermitRootLogin\s+no')
-        # remove escaped characters in case the string supports color
-        rem_escape = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')
+        # pattern = re.compile('^\s*PermitRootLogin\s+no')
+        # # remove escaped characters in case the string supports color
+        # rem_escape = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')
 
         for ip in self.IPs:
             try:
-                s=pxssh.pxssh(options={"PasswordAuthentication" : "no"})
-                s.login(ip, "as", ssh_key=os.path.expanduser("~/.ssh/id_as_ed25519"))
+                s=pxssh.pxssh(options={"PasswordAuthentication" : "no"}, encoding="utf-8")
+                #s.login(ip, "as", ssh_key="~/.ssh/id_as_ed25519")
+                s.login(ip, "as", ssh_key="/home/as/.ssh/id_as_ed25519")
                 s.sendline('grep -E "^\s*PermitRootLogin\s+no" /etc/ssh/sshd_config')
                 self.assertTrue(s.prompt())
-                line_to_match=rem_escape.sub('', s.before.splitlines()[-1])
-                self.assertTrue(pattern.match(line_to_match) != None, "Error in machine {}".format(ip))
+                #line_to_match=rem_escape.sub('', s.before.splitlines()[-1])
+                #self.assertTrue(pattern.match(line_to_match) != None, "Error in machine {}".format(ip))               
+                line_to_match=s.before
+                self.assertTrue(line_to_match != None, "Error in machine {}".format(ip))
                 s.logout()
             except pxssh.ExceptionPxssh as e:
                 self.assertTrue(False)
@@ -79,9 +81,7 @@ class TestPractica4(unittest.TestCase):
 
         self.assertTrue(True)
 
-
-    # def test_no_root
-    # find PermitRootLogin no in /etc/sshd_config
+    # def test_correct_sudo_config
 
     # def test_try_root_ssh
 
