@@ -9,7 +9,7 @@ import sys
 from tempfile import mkstemp
 import unittest
 
-class TestPractica2_1(unittest.TestCase):
+class TestPractica2_1(unittest.TestCase): 
 
     @classmethod
     def setUpClass(cls):
