@@ -15,7 +15,7 @@ Python 3 se puede instalar ejecutando el comando:
 
 Pexpect se puede instalar con [pip](https://pypi.org/project/pip/) ejecutando el comando:
 
-    as@as0:~/pip install pexpect
+    as@as0:~/pip3 install pexpect
 
 ## Descarga y actualización de los tests
 
