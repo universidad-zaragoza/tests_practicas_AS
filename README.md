@@ -24,7 +24,7 @@ descargar/clonar utilizando el comando:
 
     as@as0:~/git clone https://github.com/universidad-zaragoza/tests_practicas_AS
 
-Al terminar la operación se crearán múltiples directorio con todos los tests y
+Al terminar la operación se crearán múltiples directorios con todos los tests y
 una carpeta para las prácticas 2, 3 y 4 con los ficheros vacíos que hay que
 completar tal y como se muestra a continuación.
 
