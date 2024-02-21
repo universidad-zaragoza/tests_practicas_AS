@@ -7,21 +7,16 @@ grado de Ingeniería en Informática de la Universidad de Zaragoza.
 ## Requerimientos
 
 Los tests requieren de un interprete de python versión 3 y de la biblioteca
-[pexpect](https://pexpect.readthedocs.io/en/stable/).
+[pexpect] (https://pexpect.readthedocs.io/en/stable/). Para instalarlos:
 
-Python 3 se puede instalar ejecutando el comando:
-
-    as@as0:~/sudo apt install python3 python3-pip
-
-Pexpect se puede instalar con [pip](https://pypi.org/project/pip/) ejecutando el comando:
-
-    as@as0:~/pip3 install pexpect
+    as@as0:~/sudo apt update && sudo apt install python3 python3-pip python3-pexpect
 
 ## Descarga y actualización de los tests
 
 Los tests se encuentran dentro de un repositorio git y se pueden
-descargar/clonar utilizando el comando:
+descargar/clonar utilizando los comandos:
 
+    as@as0:~/sudo apt install git
     as@as0:~/git clone https://github.com/universidad-zaragoza/tests_practicas_AS
 
 Al terminar la operación se crearán múltiples directorio con todos los tests y
