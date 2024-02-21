@@ -9,7 +9,7 @@ grado de Ingeniería en Informática de la Universidad de Zaragoza.
 Los tests requieren de un interprete de python versión 3 y de la biblioteca
 [pexpect] (https://pexpect.readthedocs.io/en/stable/). Para instalarlos:
 
-    as@as0:~/sudo apt update && sudo apt install python3 python3-pip python3-pexpect
+    as@as0:~/sudo apt update && sudo apt install python3 python3-pexpect
 
 ## Descarga y actualización de los tests
 
