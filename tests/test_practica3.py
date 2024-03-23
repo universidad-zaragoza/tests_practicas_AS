@@ -68,7 +68,7 @@ class TestPractica3(unittest.TestCase):
                     required_options.discard('-k {}'.format(words_in_line[idx_k+1]))
 
             # useradd can have multiple -K options
-            for idx_k in [ i for i, word in enumerate(words_in_line[idx:]) if word == '-K' ]:
+            for idx_k in [ i+idx for i, word in enumerate(words_in_line[idx:]) if word == '-K' ]:
                 if idx_k+1 < length:
                     required_options.discard('-K {}'.format(words_in_line[idx_k+1]))
 
